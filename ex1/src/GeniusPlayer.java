@@ -1,11 +1,29 @@
+/**
+ * Genius TIC TAC TOE player class
+ * implements the Player interface
+ * this player is supposed to win against clever player 55% of games in a tournament
+ * strategy of this player is filling the first row and column as long that there is space
+ * if there isn't space it chooses randomly
+ * @author Itay Turniansky
+ */
 public class GeniusPlayer implements Player {
-	private final Player player_no_space = new WhateverPlayer();
-	private static final int BUFFER = 1;
-	private static final int DIVIDER = 2;
+	/*
+	whatever player to use when first row is full
+ */
+	private final Player playerNoSpace = new WhateverPlayer();
 
+	/**
+	 * Default Constructor
+	 */
 	public GeniusPlayer() {
 	}
 
+	@Override
+	/**
+	 * implements the player strategy
+	 * @param board - board to play on
+	 * @param mark - player mark (X or O)
+	 */
 	public void playTurn(Board board, Mark mark) {
 		for (int row = 0; row < board.getSize(); row++) {
 			if (board.getMark(row, 0) == Mark.BLANK) {
@@ -19,6 +37,6 @@ public class GeniusPlayer implements Player {
 				return;
 			}
 		}
-		player_no_space.playTurn(board, mark);
+		playerNoSpace.playTurn(board, mark);
 	}
 }

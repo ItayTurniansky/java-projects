@@ -1,0 +1,19 @@
+itayturni
+322690397
+
+1) clever player -
+trying to fill the first row by order from left to right.
+if the spot is taken he chooses randomly just like the whatever player
+genius player -
+similar to the clever player the genius player first tries to fill the first row
+then the first column by order,
+if the spot is full he chooses a random spot to fill just like the whatever player.
+
+2) the main advantages of implementing a common interface for all players is
+creating compatibility with the board, game, tournament classes and by that making
+a generic code that will work on all player types created and those who will be created in the future.
+it also makes changes allot easier to follow,
+and makes sure all classes implementing the interface are changed accordingly.
+it made the writing allot easier
+and made sure im not forgetting the most important method.
+this principle is called polymorphism and is one the pillars of OOP.
