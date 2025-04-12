@@ -115,18 +115,20 @@ public class Game {
 
 	public Mark run(){
 		int turn_count =0;
-	while(turn_count<board.getSize()*board.getSize()){
+		int max_turns = board.getSize()*board.getSize();
+	while(turn_count<max_turns){
 		this.playerX.playTurn(this.board, Mark.X);
+		turn_count++;
 		this.renderer.renderBoard(this.board);
 		if (checkWin(Mark.X)){
 			return Mark.X;
 		}
 		this.playerO.playTurn(this.board, Mark.O);
+		turn_count++;
 		this.renderer.renderBoard(this.board);
 		if (checkWin(Mark.O)){
 			return Mark.O;
 		}
-		turn_count++;
 	}
 	return Mark.BLANK;
 	}

@@ -3,42 +3,22 @@ public class GeniusPlayer implements Player {
 	private static final int BUFFER = 1;
 	private static final int DIVIDER = 2;
 
-	public GeniusPlayer() {}
+	public GeniusPlayer() {
+	}
+
 	public void playTurn(Board board, Mark mark) {
-		int board_size = board.getSize();
-		if (board_size%2==0) {
-			if (board.getMark((board_size/DIVIDER)-BUFFER,
-					(board_size/DIVIDER)-BUFFER )==Mark.BLANK){
-				board.putMark(mark, (board_size/DIVIDER)-BUFFER,
-						(board_size/DIVIDER)-BUFFER );
+		for (int row = 0; row < board.getSize(); row++) {
+			if (board.getMark(row, 0) == Mark.BLANK) {
+				board.putMark(mark, row, 0);
 				return;
 			}
-			if (board.getMark((board_size/DIVIDER)-BUFFER,
-					(board_size/DIVIDER))==Mark.BLANK){
-				board.putMark(mark, (board_size/DIVIDER)-BUFFER,
-						(board_size/DIVIDER));
+		}
+		for (int col = 0; col < board.getSize(); col++) {
+			if (board.getMark(0, col) == Mark.BLANK) {
+				board.putMark(mark, 0, col);
 				return;
 			}
-			if (board.getMark((board_size/DIVIDER),
-					(board_size/DIVIDER)-BUFFER )==Mark.BLANK){
-				board.putMark(mark, (board_size/DIVIDER),
-						(board_size/DIVIDER)-BUFFER );
-				return;
-			}
-			if (board.getMark((board_size/DIVIDER),
-					(board_size/DIVIDER) )==Mark.BLANK){
-				board.putMark(mark, (board_size/DIVIDER),
-						(board_size/DIVIDER));
-				return;
-			}
-			}
-		if (board.getMark((board_size-BUFFER)/DIVIDER,
-				(board_size-BUFFER)/DIVIDER)==Mark.BLANK){
-			board.putMark(mark, (board_size-BUFFER)/DIVIDER,
-					(board_size-BUFFER)/DIVIDER);
-			return;
 		}
 		player_no_space.playTurn(board, mark);
-		}
-
 	}
+}
