@@ -1,19 +1,18 @@
 package Bricker.main;
 
 import Bricker.gameobjects.Ball;
+import Bricker.gameobjects.UserPaddle;
 import danogl.GameManager;
 import danogl.GameObject;
 import danogl.collisions.Layer;
 import danogl.components.CoordinateSpace;
-import danogl.gui.ImageReader;
-import danogl.gui.SoundReader;
-import danogl.gui.UserInputListener;
-import danogl.gui.WindowController;
+import danogl.gui.*;
 import danogl.gui.rendering.RectangleRenderable;
 import danogl.gui.rendering.Renderable;
 import danogl.util.Vector2;
 
 import java.awt.*;
+import java.util.Random;
 
 public class BrickerGameManager extends GameManager {
 	private static final float BALL_SPEED= 100f;
@@ -46,40 +45,58 @@ public class BrickerGameManager extends GameManager {
 		gameObjects().addGameObject(upWall,Layer.STATIC_OBJECTS);
 	}
 
-
-	@Override
-	public void initializeGame(ImageReader imageReader, SoundReader soundReader, UserInputListener inputListener, WindowController windowController) {
-		//creating ball
-		super.initializeGame(imageReader, soundReader, inputListener, windowController);
+	private void createBall(ImageReader imageReader, SoundReader soundReader,WindowController windowController){
 		Renderable ballImage = imageReader.readImage("assets/ball.png", true);
-		GameObject ball = new Ball(Vector2.ZERO,new Vector2(BALL_SIZE,BALL_SIZE), ballImage);
-		ball.setVelocity(Vector2.DOWN.mult(BALL_SPEED));
+		Sound collisionSound = soundReader.readSound("assets/blop.wav");
+		GameObject ball = new Ball(Vector2.ZERO,new Vector2(BALL_SIZE,BALL_SIZE), ballImage, collisionSound);
+
 		Vector2 windowDimensions = windowController.getWindowDimensions();
 		Vector2 center = windowDimensions.mult(SCREEN_CENTER);
 		ball.setCenter(center);
-		gameObjects().addGameObject(ball);
-
-
-		//creating paddles
-		float[] paddleHeights = new float[]{windowDimensions.y()-PADDLE_Y, PADDLE_Y};
-		Renderable paddleImage = imageReader.readImage("assets/paddle.png", true);
-		for (int i = 0; i < paddleHeights.length; i++) {
-			GameObject paddle = new GameObject(Vector2.ZERO,new Vector2(PADDLE_LENGTH,PADDLE_WIDTH), paddleImage);
-			gameObjects().addGameObject(paddle);
-			paddle.setCenter(new Vector2(windowDimensions.x()*SCREEN_CENTER,paddleHeights[i]));
+		float ballVelX = BALL_SPEED;
+		float ballVelY= BALL_SPEED;
+		Random ran = new Random();
+		if (ran.nextBoolean()){
+			ballVelX *= -1;
 		}
+		if (ran.nextBoolean()){
+			ballVelY *= -1;
+		}
+		ball.setVelocity(new Vector2(ballVelX, ballVelY));
+		gameObjects().addGameObject(ball);
+	}
 
-		createWalls();
+	private void createUserPaddle(ImageReader imageReader, WindowController windowController, UserInputListener inputListener){
+		Renderable paddleImage = imageReader.readImage("assets/paddle.png", true);
+		Vector2 windowDimensions = windowController.getWindowDimensions();
+		GameObject userPaddle = new UserPaddle(Vector2.ZERO,new Vector2(PADDLE_LENGTH,PADDLE_WIDTH), paddleImage, inputListener, SCREEN_WIDTH);
+		gameObjects().addGameObject(userPaddle);
+		userPaddle.setCenter(new Vector2(windowDimensions.x()*SCREEN_CENTER,windowDimensions.y()-PADDLE_Y));
+	}
+
+	private void createAiPaddle(ImageReader imageReader, WindowController windowController, UserInputListener inputListener){
+		Renderable paddleImage = imageReader.readImage("assets/paddle.png", true);
+		Vector2 windowDimensions = windowController.getWindowDimensions();
+		GameObject aiPaddle = new GameObject(Vector2.ZERO,new Vector2(PADDLE_LENGTH,PADDLE_WIDTH), paddleImage);
+		gameObjects().addGameObject(aiPaddle);
+		aiPaddle.setCenter(new Vector2(windowDimensions.x()*SCREEN_CENTER,PADDLE_Y));
+	}
+
+	private void createBackground(ImageReader imageReader){
 		Renderable backgroundImage = imageReader.readImage("assets/DARK_BG2_small.jpeg", true);
 		GameObject background = new GameObject(Vector2.ZERO,new Vector2(SCREEN_WIDTH,SCREEN_LENGTH),backgroundImage);
 		background.setCoordinateSpace(CoordinateSpace.CAMERA_COORDINATES);
 		gameObjects().addGameObject(background, Layer.BACKGROUND);
+	}
 
-
-
-
-
-
+	@Override
+	public void initializeGame(ImageReader imageReader, SoundReader soundReader, UserInputListener inputListener, WindowController windowController) {
+		super.initializeGame(imageReader, soundReader, inputListener, windowController);
+		createBall(imageReader,soundReader, windowController);
+		createUserPaddle(imageReader, windowController, inputListener);
+		createAiPaddle(imageReader, windowController, inputListener);
+		createWalls();
+		createBackground(imageReader);
 	}
 
 	public static void main(String[] args) {
