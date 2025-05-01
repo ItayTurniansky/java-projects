@@ -8,7 +8,7 @@ import danogl.util.Vector2;
 
 import java.awt.event.KeyEvent;
 
-public class UserPaddle extends GameObject {
+public class Paddle extends GameObject {
 
 	private static final float PADDLE_SPEED = 300;
 	private final UserInputListener inputListener;
@@ -24,7 +24,7 @@ public class UserPaddle extends GameObject {
 	 *                      the GameObject will not be rendered.
 	 * @param inputListener
 	 */
-	public UserPaddle(Vector2 topLeftCorner, Vector2 dimensions, Renderable renderable, UserInputListener inputListener, float windowWidth) {
+	public Paddle(Vector2 topLeftCorner, Vector2 dimensions, Renderable renderable, UserInputListener inputListener, float windowWidth) {
 		super(topLeftCorner, dimensions, renderable);
 		this.inputListener = inputListener;
 		this.windowWidth = windowWidth;
