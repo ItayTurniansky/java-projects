@@ -33,19 +33,20 @@ public class BrickerGameManager extends GameManager {
 	private static final int DEFAULT_BRICKS_ROW_NUM = 7;
 	private static final int DEFAULT_BRICKS_PER_ROW = 8;
 	private static final float BRICK_BUFFER_SIZE = 5;
-	private static final int LIVES = 3;
+	private static final int START_LIVES = 3;
 	public static final int TARGET_FRAMERATE = 60;
-	private static final int MAX_HEARTS = 5;
+	private static final int MAX_HEARTS = 4;
 	private static final float HEART_START = 20;
 	private static final float HEART_BUFFER = 30;
 	private static final float HEART_SIZE = 25 ;
 	private static final float PUCK_MULTIPLAYER = 0.75f;
 	private static final float TURBO_FACTOR = 1.4f;
+	private static final float HEART_SPEED = 100f;
 
 	private int bricksLeft;
 	private final int rowNum;
 	private final int bricksPerRows;
-	private int lives = LIVES;
+	private int lives = START_LIVES;
 	private Heart[] hearts;
 	private Counter counter;
 	private Renderable heartImage;
@@ -59,6 +60,7 @@ public class BrickerGameManager extends GameManager {
 	private ImageReader imageReader;
 	private SoundReader soundReader;
 	private List<Puck> activePucks = new ArrayList<>();
+	private List<Heart> activeHearts = new ArrayList<>();
 	private ImageRenderable paddleImage;
 	private ExtraPaddle currentExtraPaddle;
 	private int turboCounter=0;
@@ -133,14 +135,14 @@ public class BrickerGameManager extends GameManager {
 		Random rand = new Random();
 		double p = rand.nextDouble();
 
-		if (p < 0.1) {
+		if (p < 0.001) {
 			return new ExtraBallCollisionStrategy(this);
-		} else if (p < 0.2) {
+		} else if (p < 0.002) {
 			return new ExtraPaddleCollisionStrategy(this);
-		} else if (p < 0.3) {
+		} else if (p < 0.003) {
 			return new TurboModeCollisionStrategy(this);
-//		} else if (p < 0.4) {
-//			return new StrikeReturnCollisionStrategy(this);
+		} else if (p < 0.99) {
+			return new ExtraLifeStrategy(this);
 //		} else if (p < 0.5) {
 //			return new DoubleActionCollisionStrategy(this);
 		} else {
@@ -158,12 +160,12 @@ public class BrickerGameManager extends GameManager {
 	}
 
 	private void addHeart(int index) {
-		if (hearts[index] == null) {
-			Vector2 heartPos = new Vector2(HEART_START + HEART_BUFFER * index, SCREEN_LENGTH - HEART_BUFFER);
-			Heart heart = new Heart(heartPos, new Vector2(HEART_SIZE, HEART_SIZE), heartImage);
-			hearts[index] = heart;
-			gameObjects().addGameObject(heart, Layer.UI);
-		}
+			if (hearts[index] == null) {
+				Vector2 heartPos = new Vector2(HEART_START + HEART_BUFFER * index, SCREEN_LENGTH - HEART_BUFFER);
+				Heart heart = new Heart(heartPos, new Vector2(HEART_SIZE, HEART_SIZE), heartImage, this);
+				hearts[index] = heart;
+				gameObjects().addGameObject(heart, Layer.UI);
+			}
 	}
 
 	private void updateLives() {
@@ -207,6 +209,17 @@ public class BrickerGameManager extends GameManager {
 		gameObjects().removeGameObject(paddle);
 		currentExtraPaddle = null;
 
+	}
+
+	public void deleteHeartObject(Heart heart) {
+		Iterator<Heart> heartIterator = activeHearts.iterator();
+		while (heartIterator.hasNext()) {
+			Heart tmpHeart = heartIterator.next();
+			if (heart== tmpHeart) {
+				gameObjects().removeGameObject(heart);
+				heartIterator.remove();
+			}
+		}
 	}
 
 	public void updateBricksCounter() {
@@ -259,6 +272,19 @@ public class BrickerGameManager extends GameManager {
 			ball.setVelocity(ball.getVelocity().mult(1/TURBO_FACTOR));
 		}
 	}
+	
+	public void triggerExtraLife(GameObject object){
+		Heart heart = new Heart(object.getCenter(), new Vector2(HEART_SIZE, HEART_SIZE), heartImage, this);
+		gameObjects().addGameObject(heart);
+		heart.setVelocity(new Vector2(0,HEART_SPEED));
+		activeHearts.add(heart);
+	}
+	
+	public void addLife(){
+		if (lives<MAX_HEARTS){
+			lives++;
+		}
+	}
 
 
 	@Override
@@ -286,6 +312,18 @@ public class BrickerGameManager extends GameManager {
 		updateLives();
 		checkPucks();
 		checkTurbo();
+		checkFallingHearts();
+	}
+
+	private void checkFallingHearts() {
+		Iterator<Heart> heartIterator = activeHearts.iterator();
+		while (heartIterator.hasNext()) {
+			Heart heart = heartIterator.next();
+			if (heart.getTopLeftCorner().y() > windowDimensions.y()) {
+				gameObjects().removeGameObject(heart);
+				heartIterator.remove();
+			}
+		}
 	}
 
 	private void checkTurbo() {
@@ -310,7 +348,7 @@ public class BrickerGameManager extends GameManager {
 	private void checkWin() {
 		if (bricksLeft == 0 || inputListener.isKeyPressed(KeyEvent.VK_W)) {
 			if (windowController.openYesNoDialog("You Win! Play again?")) {
-				this.lives = LIVES;
+				this.lives = START_LIVES;
 				this.bricksLeft=rowNum*bricksPerRows;
 				restGameHelper();
 				windowController.resetGame();
@@ -329,7 +367,7 @@ public class BrickerGameManager extends GameManager {
 			}
 			else{
 				if(windowController.openYesNoDialog("You lose! Play again?")){
-					this.lives = LIVES;
+					this.lives = START_LIVES;
 					restGameHelper();
 					windowController.resetGame();
 				}

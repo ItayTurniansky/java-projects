@@ -1,10 +1,13 @@
 package Bricker.gameobjects;
 
+import Bricker.main.BrickerGameManager;
 import danogl.GameObject;
+import danogl.collisions.Collision;
 import danogl.gui.rendering.Renderable;
 import danogl.util.Vector2;
 
 public class Heart extends GameObject {
+	private final BrickerGameManager brickerGameManager;
 	/**
 	 * Construct a new GameObject instance.
 	 *
@@ -14,7 +17,19 @@ public class Heart extends GameObject {
 	 * @param renderable    The renderable representing the object. Can be null, in which case
 	 *                      the GameObject will not be rendered.
 	 */
-	public Heart(Vector2 topLeftCorner, Vector2 dimensions, Renderable renderable) {
+	public Heart(Vector2 topLeftCorner, Vector2 dimensions, Renderable renderable, BrickerGameManager brickerGameManager) {
 		super(topLeftCorner, dimensions, renderable);
+		this.brickerGameManager = brickerGameManager;
+	}
+
+	@Override
+	public boolean shouldCollideWith(GameObject other) {
+		return other.getClass() == Paddle.class;
+	}
+
+	@Override
+	public void onCollisionEnter(GameObject other, Collision collision) {
+		this.brickerGameManager.addLife();
+		this.brickerGameManager.deleteHeartObject(this);
 	}
 }
