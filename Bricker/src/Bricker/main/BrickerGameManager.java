@@ -135,16 +135,16 @@ public class BrickerGameManager extends GameManager {
 		Random rand = new Random();
 		double p = rand.nextDouble();
 
-		if (p < 0.001) {
+		if (p < 0.1) {
 			return new ExtraBallCollisionStrategy(this);
-		} else if (p < 0.002) {
+		} else if (p < 0.2) {
 			return new ExtraPaddleCollisionStrategy(this);
-		} else if (p < 0.003) {
+		} else if (p < 0.3) {
 			return new TurboModeCollisionStrategy(this);
-		} else if (p < 0.99) {
+		} else if (p < 0.4) {
 			return new ExtraLifeStrategy(this);
-//		} else if (p < 0.5) {
-//			return new DoubleActionCollisionStrategy(this);
+		} else if (p < 0.5) {
+			return new DoubleActionCollisionStrategy(this);
 		} else {
 			return new BasicCollisionStrategy(this);
 
@@ -393,7 +393,5 @@ public class BrickerGameManager extends GameManager {
 			gameManager.run();
 		}
 	}
-
-
 
 }
