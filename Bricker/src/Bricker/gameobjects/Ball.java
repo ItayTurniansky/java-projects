@@ -34,6 +34,7 @@ public class Ball extends GameObject {
 		setVelocity(newVelocity);
 		collisionSound.play();
 		collisionCounter++;
+
 	}
 
 	public int getCollisionCounter() {

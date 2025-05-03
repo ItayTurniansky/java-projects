@@ -1,9 +1,6 @@
 package Bricker.main;
 
-import Bricker.brick_strategies.BasicCollisionStrategy;
-import Bricker.brick_strategies.CollisionStrategy;
-import Bricker.brick_strategies.ExtraBallCollisionStrategy;
-import Bricker.brick_strategies.ExtraPaddleCollisionStrategy;
+import Bricker.brick_strategies.*;
 import Bricker.gameobjects.*;
 import danogl.GameManager;
 import danogl.GameObject;
@@ -43,6 +40,7 @@ public class BrickerGameManager extends GameManager {
 	private static final float HEART_BUFFER = 30;
 	private static final float HEART_SIZE = 25 ;
 	private static final float PUCK_MULTIPLAYER = 0.75f;
+	private static final float TURBO_FACTOR = 1.4f;
 
 	private int bricksLeft;
 	private final int rowNum;
@@ -63,6 +61,8 @@ public class BrickerGameManager extends GameManager {
 	private List<Puck> activePucks = new ArrayList<>();
 	private ImageRenderable paddleImage;
 	private ExtraPaddle currentExtraPaddle;
+	private int turboCounter=0;
+	private boolean isTurbo=false;
 
 
 	public BrickerGameManager(String windowTitle, Vector2 windowDimensions, int rowNum, int bricksPerRow) {
@@ -137,8 +137,8 @@ public class BrickerGameManager extends GameManager {
 			return new ExtraBallCollisionStrategy(this);
 		} else if (p < 0.2) {
 			return new ExtraPaddleCollisionStrategy(this);
-//		} else if (p < 0.3) {
-//			return new TurboModeCollisionStrategy(this);
+		} else if (p < 0.3) {
+			return new TurboModeCollisionStrategy(this);
 //		} else if (p < 0.4) {
 //			return new StrikeReturnCollisionStrategy(this);
 //		} else if (p < 0.5) {
@@ -243,6 +243,23 @@ public class BrickerGameManager extends GameManager {
 		}
 	}
 
+	public void triggerTurboMode(){
+		if (!isTurbo){
+			ball.renderer().setRenderable(imageReader.readImage("assets/redball.png", true));
+			ball.setVelocity(ball.getVelocity().mult(TURBO_FACTOR));
+			isTurbo = true;
+			turboCounter = ball.getCollisionCounter();
+		}
+	}
+
+	public void restoreTurboMode(){
+		if (isTurbo){
+			isTurbo = false;
+			ball.renderer().setRenderable(imageReader.readImage("assets/ball.png", true));
+			ball.setVelocity(ball.getVelocity().mult(1/TURBO_FACTOR));
+		}
+	}
+
 
 	@Override
 	public void initializeGame(ImageReader imageReader, SoundReader soundReader, UserInputListener inputListener, WindowController windowController) {
@@ -268,6 +285,15 @@ public class BrickerGameManager extends GameManager {
 		checkWin();
 		updateLives();
 		checkPucks();
+		checkTurbo();
+	}
+
+	private void checkTurbo() {
+		if (isTurbo){
+			if (ball.getCollisionCounter()-turboCounter== 6){
+				restoreTurboMode();
+			}
+		}
 	}
 
 	private void checkPucks() {
@@ -317,6 +343,7 @@ public class BrickerGameManager extends GameManager {
 	private void restGameHelper(){
 		this.currentExtraPaddle = null;
 	}
+
 	public static void main(String[] args) {
 		if (args.length == 2) {
 			int rowNum = Integer.parseInt(args[0]);
