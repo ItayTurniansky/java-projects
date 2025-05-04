@@ -7,6 +7,7 @@ import java.util.Random;
 
 public class DoubleActionCollisionStrategy implements CollisionStrategy {
 	private static final int MAX_STRATEGIES = 3;
+	private static final int EXTRA_ACTION_INDEX = 2;
 	private final BrickerGameManager brickerGameManager;
 	private final CollisionStrategy[] collisionStrategies;
 
@@ -26,10 +27,8 @@ public class DoubleActionCollisionStrategy implements CollisionStrategy {
 				collisionStrategies[i] = new ExtraPaddleCollisionStrategy(this.brickerGameManager);
 			} else {
 				CollisionStrategy[] twoCollisionsStrategies = drawnDoubleAction();
-				for( CollisionStrategy strategy : twoCollisionsStrategies) {
-					collisionStrategies[i] = strategy;
-				}
-				break;
+				collisionStrategies[i] = twoCollisionsStrategies[0];
+				collisionStrategies[EXTRA_ACTION_INDEX] = twoCollisionsStrategies[1];
 			}
 		}
 

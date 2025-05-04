@@ -10,7 +10,7 @@ import java.awt.event.KeyEvent;
 
 public class Paddle extends GameObject {
 
-	private static final float PADDLE_SPEED = 300;
+	private static final float PADDLE_SPEED = 400;
 	private final UserInputListener inputListener;
 	private final float windowWidth;
 

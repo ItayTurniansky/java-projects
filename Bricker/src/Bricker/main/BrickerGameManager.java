@@ -19,15 +19,15 @@ import java.util.List;
 import java.util.Random;
 
 public class BrickerGameManager extends GameManager {
-	private static final float BALL_SPEED = 200;
+	private static final float BALL_SPEED = 250;
 	private static final float SCREEN_CENTER = 0.5f;
 	private static final float BALL_SIZE = 20;
-	private static final float SCREEN_LENGTH = 600;
-	private static final float SCREEN_WIDTH = 1000;
+	private static final float SCREEN_LENGTH = 800;
+	private static final float SCREEN_WIDTH = 1200;
 	private static final float PADDLE_LENGTH = 100;
 	private static final float PADDLE_WIDTH = 15;
 	private static final float PADDLE_Y = 20;
-	private static final float WALL_WIDTH = 10;
+	private static final float WALL_WIDTH = 20;
 	private static final Color BORDER_COLOR = Color.CYAN;
 	private static final float BRICK_HEIGHT = 15;
 	private static final int DEFAULT_BRICKS_ROW_NUM = 7;
