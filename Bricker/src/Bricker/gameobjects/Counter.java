@@ -10,6 +10,9 @@ import java.awt.*;
  * @author itayt
  */
 public class Counter extends TextRenderable {
+	private static final int GREEN_MIN = 3;
+	private static final int YELLOW_NUM = 2;
+
 	/**
 	 * @param str first string to display in counter
 	 */
@@ -22,9 +25,9 @@ public class Counter extends TextRenderable {
 	 */
 	public void update(int i) {
 		this.setString(String.valueOf(i));
-		if (i >= 3) {
+		if (i >= GREEN_MIN) {
 			this.setColor(Color.GREEN);
-		} else if (i == 2) {
+		} else if (i == YELLOW_NUM) {
 			this.setColor(Color.YELLOW);
 		} else {
 			this.setColor(Color.RED);

@@ -35,6 +35,8 @@ public class Ball extends GameObject {
 		this.collisionSound = collisionSound;
 	}
 
+
+	@Override
 	/**
 	 * plays sound when ball hits, changes its velocity and direction
 	 *
@@ -43,7 +45,6 @@ public class Ball extends GameObject {
 	 *                  A reasonable elastic behavior can be achieved with:
 	 *                  setVelocity(getVelocity().flipped(collision.getNormal()));
 	 */
-	@Override
 	public void onCollisionEnter(GameObject other, Collision collision) {
 		super.onCollisionEnter(other, collision);
 		//setVelocity();

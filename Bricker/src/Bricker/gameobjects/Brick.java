@@ -24,19 +24,21 @@ public class Brick extends GameObject {
 	 *                          the GameObject will not be rendered.
 	 * @param collisionStrategy strategy used when the brick is hit by ball/puck
 	 */
-	public Brick(Vector2 topLeftCorner, Vector2 dimensions, Renderable renderable, CollisionStrategy collisionStrategy) {
+	public Brick(Vector2 topLeftCorner, Vector2 dimensions,
+				 Renderable renderable, CollisionStrategy collisionStrategy) {
 		super(topLeftCorner, dimensions, renderable);
 		this.collisionStrategy = collisionStrategy;
 	}
 
+
+
+	@Override
 	/**
 	 * @param other     The GameObject with which a collision occurred.
 	 * @param collision Information regarding this collision.
 	 *                  A reasonable elastic behavior can be achieved with:
 	 *                  setVelocity(getVelocity().flipped(collision.getNormal()));
 	 */
-
-	@Override
 	public void onCollisionEnter(GameObject other, Collision collision) {
 		super.onCollisionEnter(other, collision);
 		this.collisionStrategy.onCollision(this, other);

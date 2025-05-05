@@ -22,13 +22,14 @@ public class ExtraLifeStrategy implements CollisionStrategy {
 		this.brickerGameManager = brickerGameManager;
 	}
 
+
+	@Override
 	/**
 	 * function that sets behaviour on collision
 	 *
 	 * @param object1 first object-got hit
 	 * @param object2 second object - the hitter
 	 */
-	@Override
 	public void onCollision(GameObject object1, GameObject object2) {
 		this.brickerGameManager.triggerExtraLife(object1);
 		if (this.brickerGameManager.deleteStaticObject(object1)) {

@@ -14,11 +14,21 @@ import danogl.util.Vector2;
 
 import java.awt.*;
 import java.awt.event.KeyEvent;
-import  java.util.*;
+import java.util.*;
 import java.util.List;
 import java.util.Random;
 
+import static Bricker.brick_strategies.DoubleActionCollisionStrategy.*;
+
+/**
+ * BrickerGameManger class for controlling the bricker game
+ *
+ * @author itayt
+ */
 public class BrickerGameManager extends GameManager {
+	/*
+	constants for sizes, speed, buffers etc...
+	 */
 	private static final float BALL_SPEED = 300;
 	private static final float SCREEN_CENTER = 0.5f;
 	private static final float BALL_SIZE = 20;
@@ -27,23 +37,33 @@ public class BrickerGameManager extends GameManager {
 	private static final float PADDLE_LENGTH = 100;
 	private static final float PADDLE_WIDTH = 15;
 	private static final float PADDLE_Y = 20;
-	private static final float WALL_WIDTH = 20;
+	private static final float WALL_WIDTH = 30;
 	private static final Color BORDER_COLOR = Color.CYAN;
 	private static final float BRICK_HEIGHT = 15;
 	private static final int DEFAULT_BRICKS_ROW_NUM = 7;
 	private static final int DEFAULT_BRICKS_PER_ROW = 8;
 	private static final float BRICK_BUFFER_SIZE = 5;
 	private static final int START_LIVES = 3;
-	public static final int TARGET_FRAMERATE = 60;
+	private static final int TARGET_FRAMERATE = 60;
 	private static final int MAX_HEARTS = 4;
 	private static final float HEART_START = 20;
 	private static final float HEART_BUFFER = 30;
-	private static final float HEART_SIZE = 25 ;
+	private static final float HEART_SIZE = 25;
 	private static final float PUCK_MULTIPLAYER = 0.75f;
 	private static final float TURBO_FACTOR = 1.4f;
 	private static final float HEART_SPEED = 100f;
 	private static final int TURBO_MAX_HEATS = 6;
+	private static final int BRICK_LOST_PER_HIT = 1;
+	private static final double EXTRA_BALL_ODDS = 0.1;
+	private static final double EXTRA_PADDLE_ODDS = 0.2;
+	private static final double TURBO_MODE_ODDS = 0.3;
+	private static final double EXTRA_LIFE_ODDS = 0.4;
+	private static final double DOUBLE_ACTION_ODDS = 0.5;
 
+	/*
+	class fields for maintaining objects and transferring them to
+	the relevant functions
+	 */
 	private int bricksLeft;
 	private final int rowNum;
 	private final int bricksPerRows;
@@ -64,27 +84,320 @@ public class BrickerGameManager extends GameManager {
 	private List<Heart> activeHearts = new ArrayList<>();
 	private ImageRenderable paddleImage;
 	private ExtraPaddle currentExtraPaddle;
-	private int turboCounter=0;
-	private boolean isTurbo=false;
+	private int turboCounter = 0;
+	private boolean isTurbo = false;
 
-
-	public BrickerGameManager(String windowTitle, Vector2 windowDimensions, int rowNum, int bricksPerRow) {
+	/**
+	 * Constructor
+	 *
+	 * @param windowTitle      Title of the game window
+	 * @param windowDimensions vector of width and length of the game window dimensions
+	 * @param rowNum           number of bricks rows
+	 * @param bricksPerRow     number of bricks per row
+	 */
+	public BrickerGameManager(String windowTitle, Vector2 windowDimensions,
+							  int rowNum, int bricksPerRow) {
 		super(windowTitle, windowDimensions);
 		this.rowNum = rowNum;
 		this.bricksPerRows = bricksPerRow;
-		this.bricksLeft = rowNum*bricksPerRow;
+		this.bricksLeft = rowNum * bricksPerRow;
 	}
 
+
+	@Override
+	/**
+	 * @param imageReader      Contains a single method: readImage, which reads an image from disk.
+	 *                         See its documentation for help.
+	 * @param soundReader      Contains a single method: readSound, which reads a wav file from
+	 *                         disk. See its documentation for help.
+	 * @param inputListener    Contains a single method: isKeyPressed, which returns whether
+	 *                         a given key is currently pressed by the user or not. See its
+	 *                         documentation.
+	 * @param windowController Contains an array of helpful, self explanatory methods
+	 *                         concerning the window.
+	 */
+	public void initializeGame(ImageReader imageReader, SoundReader soundReader,
+							   UserInputListener inputListener, WindowController windowController) {
+		this.imageReader = imageReader;
+		this.soundReader = soundReader;
+		this.inputListener = inputListener;
+		super.initializeGame(imageReader, soundReader, inputListener, windowController);
+		windowController.setTargetFramerate(TARGET_FRAMERATE);
+		this.windowController = windowController;
+		this.windowDimensions = windowController.getWindowDimensions();
+		createUserPaddle(imageReader, inputListener);
+		createWalls();
+		createBackground(imageReader);
+		createBricks(imageReader, rowNum, bricksPerRows);
+		createBall(imageReader, soundReader);
+		createLivesDisplay(imageReader);
+	}
+
+
+	@Override
+	/**
+	 * @param deltaTime The time, in seconds, that passed since the last invocation
+	 *                  of this method (i.e., since the last frame). This is useful
+	 *                  for either accumulating the total time that passed since some
+	 *                  event, or for physics integration (i.e., multiply this by
+	 *                  the acceleration to get an estimate of the added velocity or
+	 *                  by the velocity to get an estimate of the difference in position).
+	 */
+	public void update(float deltaTime) {
+		super.update(deltaTime);
+		checkLose();
+		checkWin();
+		updateLives();
+		checkPucks();
+		checkTurbo();
+		checkFallingHearts();
+	}
+
+	/**
+	 * @param object static object to delete from screen
+	 * @return true if it was deleted and false if it wasn't
+	 */
+	public boolean deleteStaticObject(GameObject object) {
+		return gameObjects().removeGameObject(object, Layer.STATIC_OBJECTS);
+	}
+
+	/**
+	 * @param paddle paddle object to delete
+	 */
+	public void deletePaddleObject(Paddle paddle) {
+		gameObjects().removeGameObject(paddle);
+		currentExtraPaddle = null;
+
+	}
+
+	/**
+	 * @param heart object to delete
+	 */
+	public void deleteHeartObject(Heart heart) {
+		Iterator<Heart> heartIterator = activeHearts.iterator();
+		while (heartIterator.hasNext()) {
+			Heart tmpHeart = heartIterator.next();
+			if (heart == tmpHeart) {
+				gameObjects().removeGameObject(heart);
+				heartIterator.remove();
+			}
+		}
+	}
+
+	/**
+	 * decrease the number of bricks left on the screen by BRICK_LOST_PER_HIT.
+	 */
+	public void updateBricksCounter() {
+		this.bricksLeft -= BRICK_LOST_PER_HIT;
+	}
+
+	/**
+	 * handles an ExtraBall brick behaviour when its hit
+	 *
+	 * @param object used to get the center of the brick so the balls will start from it
+	 */
+	public void triggerExtraBall(GameObject object) {
+		Renderable puckImage = imageReader.readImage("assets/mockBall.png", true);
+		Sound collisionSound = soundReader.readSound("assets/blop.wav");
+		for (int i = 0; i < 2; i++) {
+			Puck puck = new Puck(Vector2.ZERO, new Vector2(BALL_SIZE * PUCK_MULTIPLAYER,
+					BALL_SIZE * PUCK_MULTIPLAYER), puckImage, collisionSound);
+			gameObjects().addGameObject(puck);
+			activePucks.add(puck);
+			Vector2 center = object.getCenter();
+			puck.setCenter(center);
+			Random ran = new Random();
+			double angle = ran.nextDouble() * Math.PI;
+			float velocityX = (float) Math.cos(angle) * BALL_SPEED;
+			float velocityY = (float) Math.sin(angle) * BALL_SPEED;
+			puck.setVelocity(new Vector2(velocityX, velocityY));
+
+		}
+
+	}
+
+	/**
+	 * handles an TurboMode brick behaviour when its hit
+	 */
+	public void triggerExtraPaddle() {
+		if (currentExtraPaddle == null) {
+			ExtraPaddle extraPaddle = new ExtraPaddle(Vector2.ZERO,
+					new Vector2(PADDLE_LENGTH, PADDLE_WIDTH), paddleImage, inputListener,
+					SCREEN_WIDTH, this);
+			gameObjects().addGameObject(extraPaddle);
+			extraPaddle.setCenter(
+					new Vector2(windowDimensions.x() * SCREEN_CENTER, windowDimensions.y() -
+							SCREEN_LENGTH / 2));
+			this.currentExtraPaddle = extraPaddle;
+		}
+	}
+
+	/**
+	 * handles a TurboMode brick behaviour when its hit
+	 */
+	public void triggerTurboMode() {
+		if (!isTurbo) {
+			ball.renderer().setRenderable(imageReader.readImage("assets/redball.png",
+					true));
+			ball.setVelocity(ball.getVelocity().mult(TURBO_FACTOR));
+			isTurbo = true;
+			turboCounter = ball.getCollisionCounter();
+		}
+	}
+
+	/**
+	 * handles a ExtraLife brick behaviour when its hit
+	 *
+	 * @param object used to set the heart starting point
+	 */
+	public void triggerExtraLife(GameObject object) {
+		Heart heart = new Heart(object.getCenter(), new Vector2(HEART_SIZE, HEART_SIZE),
+				heartImage, this);
+		gameObjects().addGameObject(heart);
+		heart.setVelocity(new Vector2(0, HEART_SPEED));
+		activeHearts.add(heart);
+	}
+
+	/**
+	 * adds one life
+	 */
+	public void addLife() {
+		if (lives < MAX_HEARTS) {
+			lives++;
+		}
+	}
+
+	/**
+	 * @param args input CLI arguments
+	 */
+	public static void main(String[] args) {
+		if (args.length == 2) {
+			int rowNum = Integer.parseInt(args[0]);
+			int bricksPerRow = Integer.parseInt(args[1]);
+			GameManager gameManager = new BrickerGameManager("Bricker",
+					new Vector2(SCREEN_WIDTH, SCREEN_LENGTH), rowNum, bricksPerRow);
+			gameManager.run();
+		} else {
+			GameManager gameManager = new BrickerGameManager("Bricker",
+					new Vector2(SCREEN_WIDTH, SCREEN_LENGTH), DEFAULT_BRICKS_ROW_NUM, DEFAULT_BRICKS_PER_ROW);
+			gameManager.run();
+		}
+	}
+
+	/*
+	 *
+	 * restores the ball to normal after turbo mode is done
+	 */
+	private void restoreTurboMode() {
+		if (isTurbo) {
+			isTurbo = false;
+			ball.renderer().setRenderable(imageReader.readImage("assets/ball.png", true));
+			ball.setVelocity(ball.getVelocity().mult(1 / TURBO_FACTOR));
+		}
+	}
+
+	/*
+	checks and removes falling hearts out of bounds
+ 	*/
+	private void checkFallingHearts() {
+		Iterator<Heart> heartIterator = activeHearts.iterator();
+		while (heartIterator.hasNext()) {
+			Heart heart = heartIterator.next();
+			if (heart.getTopLeftCorner().y() > windowDimensions.y()) {
+				gameObjects().removeGameObject(heart);
+				heartIterator.remove();
+			}
+		}
+	}
+
+	/*
+	checks and disables ball turbo mode
+ 	*/
+	private void checkTurbo() {
+		if (isTurbo) {
+			if (ball.getCollisionCounter() - turboCounter >= TURBO_MAX_HEATS) {
+				restoreTurboMode();
+			}
+		}
+	}
+	/*
+	checks and removes pucks out of bounds
+ 	*/
+
+	private void checkPucks() {
+		Iterator<Puck> puckIterator = activePucks.iterator();
+		while (puckIterator.hasNext()) {
+			Puck puck = puckIterator.next();
+			if (puck.getTopLeftCorner().y() > windowDimensions.y()) {
+				gameObjects().removeGameObject(puck);
+				puckIterator.remove();
+			}
+		}
+	}
+	/*
+	checks if player won and handles it
+ 	*/
+
+	private void checkWin() {
+		if (bricksLeft == 0 || inputListener.isKeyPressed(KeyEvent.VK_W)) {
+			if (windowController.openYesNoDialog("You Win! Play again?")) {
+				this.lives = START_LIVES;
+				this.bricksLeft = rowNum * bricksPerRows;
+				restGameHelper();
+				windowController.resetGame();
+			} else {
+				windowController.closeWindow();
+			}
+		}
+	}
+
+	/*
+	checks if player lost and handles it
+ 	*/
+	private void checkLose() {
+		double ballHeight = ball.getCenter().y();
+		if (ballHeight > windowDimensions.y()) {
+			if (lives > 1) {
+				centerBall(ball);
+				lives -= 1;
+			} else {
+				if (windowController.openYesNoDialog("You lose! Play again?")) {
+					this.lives = START_LIVES;
+					restGameHelper();
+					windowController.resetGame();
+				} else {
+					windowController.closeWindow();
+				}
+			}
+		}
+	}
+
+	/*
+	helper function that resets the extraPaddle when game restarts.
+	 */
+	private void restGameHelper() {
+		this.currentExtraPaddle = null;
+	}
+
+	/*
+		create game walls.
+	 */
 	private void createWalls() {
-		GameObject leftWall = new GameObject(Vector2.ZERO, new Vector2(WALL_WIDTH, SCREEN_LENGTH), new RectangleRenderable(BORDER_COLOR));
+		GameObject leftWall = new GameObject(Vector2.ZERO, new Vector2(WALL_WIDTH, SCREEN_LENGTH),
+				new RectangleRenderable(BORDER_COLOR));
 		gameObjects().addGameObject(leftWall, Layer.STATIC_OBJECTS);
 
-		GameObject rightWall = new GameObject(new Vector2(SCREEN_WIDTH - WALL_WIDTH, 0), new Vector2(WALL_WIDTH, SCREEN_LENGTH), new RectangleRenderable(BORDER_COLOR));
+		GameObject rightWall = new GameObject(new Vector2(SCREEN_WIDTH - WALL_WIDTH, 0),
+				new Vector2(WALL_WIDTH, SCREEN_LENGTH), new RectangleRenderable(BORDER_COLOR));
 		gameObjects().addGameObject(rightWall, Layer.STATIC_OBJECTS);
 
-		GameObject upWall = new GameObject(Vector2.UP, new Vector2(SCREEN_WIDTH, WALL_WIDTH), new RectangleRenderable(BORDER_COLOR));
+		GameObject upWall = new GameObject(Vector2.UP, new Vector2(SCREEN_WIDTH,
+				WALL_WIDTH), new RectangleRenderable(BORDER_COLOR));
 		gameObjects().addGameObject(upWall, Layer.STATIC_OBJECTS);
 	}
+	/*
+	create game ball
+	 */
 
 	private void createBall(ImageReader imageReader, SoundReader soundReader) {
 		ballImage = imageReader.readImage("assets/ball.png", true);
@@ -94,6 +407,9 @@ public class BrickerGameManager extends GameManager {
 		centerBall(ball);
 
 	}
+	/*
+	center game ball
+	 */
 
 	private void centerBall(Ball ball) {
 		Vector2 center = windowDimensions.mult(SCREEN_CENTER);
@@ -105,13 +421,21 @@ public class BrickerGameManager extends GameManager {
 		if (ran.nextBoolean()) ballVelY *= -1;
 		ball.setVelocity(new Vector2(ballVelX, ballVelY));
 	}
+	/*
+	create main user paddle
+	 */
 
 	private void createUserPaddle(ImageReader imageReader, UserInputListener inputListener) {
 		paddleImage = imageReader.readImage("assets/paddle.png", true);
-		userPaddle = new Paddle(Vector2.ZERO, new Vector2(PADDLE_LENGTH, PADDLE_WIDTH), paddleImage, inputListener, SCREEN_WIDTH, "mainPaddle");
+		userPaddle = new Paddle(Vector2.ZERO, new Vector2(PADDLE_LENGTH, PADDLE_WIDTH),
+				paddleImage, inputListener, SCREEN_WIDTH, "MainPaddle");
 		gameObjects().addGameObject(userPaddle);
-		userPaddle.setCenter(new Vector2(windowDimensions.x() * SCREEN_CENTER, windowDimensions.y() - PADDLE_Y));
+		userPaddle.setCenter(new Vector2(windowDimensions.x() * SCREEN_CENTER,
+				windowDimensions.y() - PADDLE_Y));
 	}
+	/*
+	create all bricks
+	 */
 
 	private void createBricks(ImageReader imageReader, int numRows, int numBricksPerRow) {
 		Renderable brickImage = imageReader.readImage("assets/brick.png", false);
@@ -126,25 +450,41 @@ public class BrickerGameManager extends GameManager {
 						startY + i * (BRICK_HEIGHT + BRICK_BUFFER_SIZE)
 				);
 				CollisionStrategy collisionStrategy = randomCollisionStrategy();
-				GameObject brick = new Brick(brickTopLeft, new Vector2(brickWidth, BRICK_HEIGHT), brickImage, collisionStrategy);
+				GameObject brick = new Brick(brickTopLeft,
+						new Vector2(brickWidth, BRICK_HEIGHT), brickImage, collisionStrategy);
 				gameObjects().addGameObject(brick, Layer.STATIC_OBJECTS);
 			}
 		}
 	}
 
+	/*
+	create game background
+	 */
+	private void createBackground(ImageReader imageReader) {
+		Renderable backgroundImage = imageReader.readImage
+				("assets/DARK_BG2_small.jpeg", true);
+		GameObject background = new GameObject(Vector2.ZERO,
+				new Vector2(SCREEN_WIDTH, SCREEN_LENGTH), backgroundImage);
+		background.setCoordinateSpace(CoordinateSpace.CAMERA_COORDINATES);
+		gameObjects().addGameObject(background, Layer.BACKGROUND);
+	}
+	/*
+	generate random collision strategy based on odds.
+	 */
+
 	private CollisionStrategy randomCollisionStrategy() {
 		Random rand = new Random();
 		double p = rand.nextDouble();
 
-		if (p < 0.1) {
+		if (p < EXTRA_BALL_ODDS) {
 			return new ExtraBallCollisionStrategy(this);
-		} else if (p < 0.2) {
+		} else if (p < EXTRA_PADDLE_ODDS) {
 			return new ExtraPaddleCollisionStrategy(this);
-		} else if (p < 0.3) {
+		} else if (p < TURBO_MODE_ODDS) {
 			return new TurboModeCollisionStrategy(this);
-		} else if (p < 0.4) {
+		} else if (p < EXTRA_LIFE_ODDS) {
 			return new ExtraLifeStrategy(this);
-		} else if (p < 0.5) {
+		} else if (p < DOUBLE_ACTION_ODDS) {
 			return new DoubleActionCollisionStrategy(this);
 		} else {
 			return new BasicCollisionStrategy(this);
@@ -153,37 +493,9 @@ public class BrickerGameManager extends GameManager {
 
 	}
 
-	private void createBackground(ImageReader imageReader) {
-		Renderable backgroundImage = imageReader.readImage("assets/DARK_BG2_small.jpeg", true);
-		GameObject background = new GameObject(Vector2.ZERO, new Vector2(SCREEN_WIDTH, SCREEN_LENGTH), backgroundImage);
-		background.setCoordinateSpace(CoordinateSpace.CAMERA_COORDINATES);
-		gameObjects().addGameObject(background, Layer.BACKGROUND);
-	}
-
-	private void addHeart(int index) {
-			if (hearts[index] == null) {
-				Vector2 heartPos = new Vector2(HEART_START + HEART_BUFFER * index, SCREEN_LENGTH - HEART_BUFFER);
-				Heart heart = new Heart(heartPos, new Vector2(HEART_SIZE, HEART_SIZE), heartImage, this);
-				hearts[index] = heart;
-				gameObjects().addGameObject(heart, Layer.UI);
-			}
-	}
-
-	private void updateLives() {
-		counter.update(lives);
-		for (int i = 0; i < hearts.length; i++) {
-			if (i < lives) {
-				addHeart(i);
-			} else {
-				if (hearts[i] != null) {
-					gameObjects().removeGameObject(hearts[i], Layer.UI);
-					hearts[i] = null;
-				}
-			}
-		}
-	}
-
-
+	/*
+	create the life display
+	 */
 	private void createLivesDisplay(ImageReader imageReader) {
 		heartImage = imageReader.readImage("assets/heart.png", true);
 		hearts = new Heart[MAX_HEARTS];
@@ -202,197 +514,34 @@ public class BrickerGameManager extends GameManager {
 	}
 
 
-	public boolean deleteStaticObject(GameObject object) {
-		return gameObjects().removeGameObject(object, Layer.STATIC_OBJECTS);
-	}
-
-	public void deletePaddleObject(Paddle paddle) {
-		gameObjects().removeGameObject(paddle);
-		currentExtraPaddle = null;
-
-	}
-
-	public void deleteHeartObject(Heart heart) {
-		Iterator<Heart> heartIterator = activeHearts.iterator();
-		while (heartIterator.hasNext()) {
-			Heart tmpHeart = heartIterator.next();
-			if (heart== tmpHeart) {
-				gameObjects().removeGameObject(heart);
-				heartIterator.remove();
-			}
+	/*
+	add heart to display
+	 */
+	private void addHeart(int index) {
+		if (hearts[index] == null) {
+			Vector2 heartPos = new Vector2(HEART_START + HEART_BUFFER * index, SCREEN_LENGTH - HEART_BUFFER);
+			Heart heart = new Heart(heartPos, new Vector2(HEART_SIZE, HEART_SIZE), heartImage, this);
+			hearts[index] = heart;
+			gameObjects().addGameObject(heart, Layer.UI);
 		}
 	}
 
-	public void updateBricksCounter() {
-		this.bricksLeft -=1;
-	}
-
-
-	public void triggerExtraBall(GameObject object) {
-		Renderable puckImage = imageReader.readImage("assets/mockBall.png", true);
-		Sound collisionSound = soundReader.readSound("assets/blop.wav");
-		for (int i=0; i<2; i++){
-			Puck puck = new Puck(Vector2.ZERO, new Vector2(BALL_SIZE* PUCK_MULTIPLAYER, BALL_SIZE*PUCK_MULTIPLAYER), puckImage, collisionSound);
-			gameObjects().addGameObject(puck);
-			activePucks.add(puck);
-			Vector2 center = object.getCenter();
-			puck.setCenter(center);
-			Random ran = new Random();
-			double angle = ran.nextDouble()* Math.PI;
-			float velocityX = (float)Math.cos(angle) * BALL_SPEED;
-			float velocityY = (float)Math.sin(angle) * BALL_SPEED;
-			puck.setVelocity(new Vector2(velocityX, velocityY));
-
-		}
-
-	}
-
-	public void triggerExtraPaddle(GameObject object) {
-		if (currentExtraPaddle==null){
-			ExtraPaddle extraPaddle = new ExtraPaddle(Vector2.ZERO,
-					new Vector2(PADDLE_LENGTH, PADDLE_WIDTH), paddleImage, inputListener, SCREEN_WIDTH, this);
-			gameObjects().addGameObject(extraPaddle);
-			extraPaddle.setCenter(new Vector2(windowDimensions.x() * SCREEN_CENTER, windowDimensions.y() - SCREEN_LENGTH/2));
-			this.currentExtraPaddle = extraPaddle;
-		}
-	}
-
-	public void triggerTurboMode(){
-		if (!isTurbo){
-			ball.renderer().setRenderable(imageReader.readImage("assets/redball.png", true));
-			ball.setVelocity(ball.getVelocity().mult(TURBO_FACTOR));
-			isTurbo = true;
-			turboCounter = ball.getCollisionCounter();
-		}
-	}
-
-	public void restoreTurboMode(){
-		if (isTurbo){
-			isTurbo = false;
-			ball.renderer().setRenderable(imageReader.readImage("assets/ball.png", true));
-			ball.setVelocity(ball.getVelocity().mult(1/TURBO_FACTOR));
-		}
-	}
-	
-	public void triggerExtraLife(GameObject object){
-		Heart heart = new Heart(object.getCenter(), new Vector2(HEART_SIZE, HEART_SIZE), heartImage, this);
-		gameObjects().addGameObject(heart);
-		heart.setVelocity(new Vector2(0,HEART_SPEED));
-		activeHearts.add(heart);
-	}
-	
-	public void addLife(){
-		if (lives<MAX_HEARTS){
-			lives++;
-		}
-	}
-
-
-	@Override
-	public void initializeGame(ImageReader imageReader, SoundReader soundReader, UserInputListener inputListener, WindowController windowController) {
-		this.imageReader = imageReader;
-		this.soundReader = soundReader;
-		this.inputListener = inputListener;
-		super.initializeGame(imageReader, soundReader, inputListener, windowController);
-		windowController.setTargetFramerate(TARGET_FRAMERATE);
-		this.windowController = windowController;
-		this.windowDimensions = windowController.getWindowDimensions();
-		createUserPaddle(imageReader, inputListener);
-		createWalls();
-		createBackground(imageReader);
-		createBricks(imageReader, rowNum, bricksPerRows);
-		createBall(imageReader, soundReader);
-		createLivesDisplay(imageReader);
-	}
-
-	@Override
-	public void update(float deltaTime) {
-		super.update(deltaTime);
-		checkLose();
-		checkWin();
-		updateLives();
-		checkPucks();
-		checkTurbo();
-		checkFallingHearts();
-	}
-
-	private void checkFallingHearts() {
-		Iterator<Heart> heartIterator = activeHearts.iterator();
-		while (heartIterator.hasNext()) {
-			Heart heart = heartIterator.next();
-			if (heart.getTopLeftCorner().y() > windowDimensions.y()) {
-				gameObjects().removeGameObject(heart);
-				heartIterator.remove();
-			}
-		}
-	}
-
-	private void checkTurbo() {
-		if (isTurbo){
-			if (ball.getCollisionCounter()-turboCounter >= TURBO_MAX_HEATS){
-				restoreTurboMode();
-			}
-		}
-	}
-
-	private void checkPucks() {
-		Iterator<Puck> puckIterator = activePucks.iterator();
-		while (puckIterator.hasNext()) {
-			Puck puck = puckIterator.next();
-			if (puck.getTopLeftCorner().y() > windowDimensions.y()) {
-				gameObjects().removeGameObject(puck);
-				puckIterator.remove();
-			}
-		}
-	}
-
-	private void checkWin() {
-		if (bricksLeft == 0 || inputListener.isKeyPressed(KeyEvent.VK_W)) {
-			if (windowController.openYesNoDialog("You Win! Play again?")) {
-				this.lives = START_LIVES;
-				this.bricksLeft=rowNum*bricksPerRows;
-				restGameHelper();
-				windowController.resetGame();
+	/*
+	update life counter and display
+	 */
+	private void updateLives() {
+		counter.update(lives);
+		for (int i = 0; i < hearts.length; i++) {
+			if (i < lives) {
+				addHeart(i);
 			} else {
-				windowController.closeWindow();
-			}
-		}
-	}
-
-	private void checkLose() {
-		double ballHeight = ball.getCenter().y();
-		if(ballHeight> windowDimensions.y()){
-			if(lives > 1){
-				centerBall(ball);
-				lives -= 1;
-			}
-			else{
-				if(windowController.openYesNoDialog("You lose! Play again?")){
-					this.lives = START_LIVES;
-					restGameHelper();
-					windowController.resetGame();
-				}
-				else{
-					windowController.closeWindow();
+				if (hearts[i] != null) {
+					gameObjects().removeGameObject(hearts[i], Layer.UI);
+					hearts[i] = null;
 				}
 			}
 		}
 	}
 
-	private void restGameHelper(){
-		this.currentExtraPaddle = null;
-	}
-
-	public static void main(String[] args) {
-		if (args.length == 2) {
-			int rowNum = Integer.parseInt(args[0]);
-			int bricksPerRow = Integer.parseInt(args[1]);
-			GameManager gameManager = new BrickerGameManager("Bricker", new Vector2(SCREEN_WIDTH, SCREEN_LENGTH), rowNum, bricksPerRow);
-			gameManager.run();
-		} else {
-			GameManager gameManager = new BrickerGameManager("Bricker", new Vector2(SCREEN_WIDTH, SCREEN_LENGTH), DEFAULT_BRICKS_ROW_NUM, DEFAULT_BRICKS_PER_ROW);
-			gameManager.run();
-		}
-	}
 
 }

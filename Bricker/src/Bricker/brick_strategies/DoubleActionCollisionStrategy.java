@@ -53,13 +53,14 @@ public class DoubleActionCollisionStrategy implements CollisionStrategy {
 
 	}
 
+
+	@Override
 	/**
 	 * function that sets behaviour on collision-activates all strategies of brick
 	 *
 	 * @param object1 first object-got hit
 	 * @param object2 second object - the hitter
 	 */
-	@Override
 	public void onCollision(GameObject object1, GameObject object2) {
 		for (CollisionStrategy strategy : this.collisionStrategies) {
 			if (strategy != null) {

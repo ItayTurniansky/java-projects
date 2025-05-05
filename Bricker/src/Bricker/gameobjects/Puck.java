@@ -4,7 +4,13 @@ import danogl.gui.Sound;
 import danogl.gui.rendering.Renderable;
 import danogl.util.Vector2;
 
-public class Puck extends Ball{
+/**
+ * Puck class to separate the puck from the main ball when
+ * touching a turbo mode brick.
+ *
+ * @author itayt
+ */
+public class Puck extends Ball {
 
 	/**
 	 * Construct a new GameObject instance.
@@ -14,9 +20,10 @@ public class Puck extends Ball{
 	 * @param dimensions     Width and height in window coordinates.
 	 * @param renderable     The renderable representing the object. Can be null, in which case
 	 *                       the GameObject will not be rendered.
-	 * @param collisionSound
+	 * @param collisionSound sound made when colliding
 	 */
-	public Puck(Vector2 topLeftCorner, Vector2 dimensions, Renderable renderable, Sound collisionSound) {
+	public Puck(Vector2 topLeftCorner, Vector2 dimensions, Renderable renderable,
+				Sound collisionSound) {
 		super(topLeftCorner, dimensions, renderable, collisionSound);
 	}
 
