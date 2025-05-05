@@ -26,7 +26,7 @@ public class ExtraPaddle extends Paddle{
 	 * @param windowWidth
 	 */
 	public ExtraPaddle(Vector2 topLeftCorner, Vector2 dimensions, Renderable renderable, UserInputListener inputListener, float windowWidth, BrickerGameManager brickerGameManager) {
-		super(topLeftCorner, dimensions, renderable, inputListener, windowWidth);
+		super(topLeftCorner, dimensions, renderable, inputListener, windowWidth, "ExtraPaddle");
 		this.brickerGameManager = brickerGameManager;
 		this.hitsCounter = MAX_PADDLE_HITS;
 	}

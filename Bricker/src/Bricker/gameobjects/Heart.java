@@ -24,7 +24,7 @@ public class Heart extends GameObject {
 
 	@Override
 	public boolean shouldCollideWith(GameObject other) {
-		return other.getClass() == Paddle.class;
+		return other.getTag().equals("mainPaddle");
 	}
 
 	@Override

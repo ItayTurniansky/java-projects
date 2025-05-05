@@ -1,18 +1,25 @@
 package Bricker.gameobjects;
 
-import danogl.GameObject;
-import danogl.gui.rendering.Renderable;
 import danogl.gui.rendering.TextRenderable;
-import danogl.util.Vector2;
 
 import java.awt.*;
 
+/**
+ * Counter class represents the life counter extends TextRenderable
+ *
+ * @author itayt
+ */
 public class Counter extends TextRenderable {
-
+	/**
+	 * @param str first string to display in counter
+	 */
 	public Counter(String str) {
 		super(str);
 	}
 
+	/**
+	 * @param i the current life amount to be displayed by counter
+	 */
 	public void update(int i) {
 		this.setString(String.valueOf(i));
 		if (i >= 3) {

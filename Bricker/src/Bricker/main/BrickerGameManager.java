@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.Random;
 
 public class BrickerGameManager extends GameManager {
-	private static final float BALL_SPEED = 250;
+	private static final float BALL_SPEED = 300;
 	private static final float SCREEN_CENTER = 0.5f;
 	private static final float BALL_SIZE = 20;
 	private static final float SCREEN_LENGTH = 800;
@@ -42,6 +42,7 @@ public class BrickerGameManager extends GameManager {
 	private static final float PUCK_MULTIPLAYER = 0.75f;
 	private static final float TURBO_FACTOR = 1.4f;
 	private static final float HEART_SPEED = 100f;
+	private static final int TURBO_MAX_HEATS = 6;
 
 	private int bricksLeft;
 	private final int rowNum;
@@ -107,7 +108,7 @@ public class BrickerGameManager extends GameManager {
 
 	private void createUserPaddle(ImageReader imageReader, UserInputListener inputListener) {
 		paddleImage = imageReader.readImage("assets/paddle.png", true);
-		userPaddle = new Paddle(Vector2.ZERO, new Vector2(PADDLE_LENGTH, PADDLE_WIDTH), paddleImage, inputListener, SCREEN_WIDTH);
+		userPaddle = new Paddle(Vector2.ZERO, new Vector2(PADDLE_LENGTH, PADDLE_WIDTH), paddleImage, inputListener, SCREEN_WIDTH, "mainPaddle");
 		gameObjects().addGameObject(userPaddle);
 		userPaddle.setCenter(new Vector2(windowDimensions.x() * SCREEN_CENTER, windowDimensions.y() - PADDLE_Y));
 	}
@@ -328,7 +329,7 @@ public class BrickerGameManager extends GameManager {
 
 	private void checkTurbo() {
 		if (isTurbo){
-			if (ball.getCollisionCounter()-turboCounter== 6){
+			if (ball.getCollisionCounter()-turboCounter >= TURBO_MAX_HEATS){
 				restoreTurboMode();
 			}
 		}

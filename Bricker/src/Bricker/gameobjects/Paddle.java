@@ -10,7 +10,7 @@ import java.awt.event.KeyEvent;
 
 public class Paddle extends GameObject {
 
-	private static final float PADDLE_SPEED = 400;
+	private static final float PADDLE_SPEED = 500;
 	private final UserInputListener inputListener;
 	private final float windowWidth;
 
@@ -24,10 +24,11 @@ public class Paddle extends GameObject {
 	 *                      the GameObject will not be rendered.
 	 * @param inputListener
 	 */
-	public Paddle(Vector2 topLeftCorner, Vector2 dimensions, Renderable renderable, UserInputListener inputListener, float windowWidth) {
+	public Paddle(Vector2 topLeftCorner, Vector2 dimensions, Renderable renderable, UserInputListener inputListener, float windowWidth, String tag) {
 		super(topLeftCorner, dimensions, renderable);
 		this.inputListener = inputListener;
 		this.windowWidth = windowWidth;
+		this.setTag(tag);
 	}
 
 	@Override

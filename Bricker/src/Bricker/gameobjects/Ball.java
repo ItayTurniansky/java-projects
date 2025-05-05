@@ -6,19 +6,28 @@ import danogl.gui.Sound;
 import danogl.gui.rendering.Renderable;
 import danogl.util.Vector2;
 
+/**
+ * Ball class represents the main game ball extends game object
+ *
+ * @author itayt
+ */
 public class Ball extends GameObject {
-	private static int collisionCounter=0;
+	/*
+	hit counter and collision sound fields
+	 */
+	private static int collisionCounter = 0;
 	private final Sound collisionSound;
 
 
 	/**
-	 * Construct a new GameObject instance.
+	 * Construct a new Ball instance.
 	 *
-	 * @param topLeftCorner Position of the object, in window coordinates (pixels).
-	 *                      Note that (0,0) is the top-left corner of the window.
-	 * @param dimensions    Width and height in window coordinates.
-	 * @param renderable    The renderable representing the object. Can be null, in which case
-	 *                      the GameObject will not be rendered.
+	 * @param topLeftCorner  Position of the object, in window coordinates (pixels).
+	 *                       Note that (0,0) is the top-left corner of the window.
+	 * @param dimensions     Width and height in window coordinates.
+	 * @param renderable     The renderable representing the object. Can be null, in which case
+	 *                       the GameObject will not be rendered.
+	 * @param collisionSound the sound to be made when ball hits.
 	 */
 	public Ball(Vector2 topLeftCorner, Vector2 dimensions, Renderable renderable,
 				Sound collisionSound) {
@@ -26,6 +35,14 @@ public class Ball extends GameObject {
 		this.collisionSound = collisionSound;
 	}
 
+	/**
+	 * plays sound when ball hits, changes its velocity and direction
+	 *
+	 * @param other     The GameObject with which a collision occurred.
+	 * @param collision Information regarding this collision.
+	 *                  A reasonable elastic behavior can be achieved with:
+	 *                  setVelocity(getVelocity().flipped(collision.getNormal()));
+	 */
 	@Override
 	public void onCollisionEnter(GameObject other, Collision collision) {
 		super.onCollisionEnter(other, collision);
@@ -36,6 +53,10 @@ public class Ball extends GameObject {
 		collisionCounter++;
 
 	}
+
+	/**
+	 * @return collision counter
+	 */
 
 	public int getCollisionCounter() {
 		return collisionCounter;
