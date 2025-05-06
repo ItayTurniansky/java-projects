@@ -1,15 +1,17 @@
-package Bricker.brick_strategies;
+package bricker.brick_strategies;
 
-import Bricker.main.BrickerGameManager;
+import bricker.gameobjects.Puck;
+import bricker.main.BrickerGameManager;
 import danogl.GameObject;
 
 /**
- * ExtraPaddleCollisionStrategy class implements the CollisionStrategy interface
+ * TurboModeCollisionStrategy class implements the CollisionStrategy interface
  * this strategy gives 2 extra pucks for the player to play with.
  *
  * @author itayt
  */
-public class ExtraPaddleCollisionStrategy implements CollisionStrategy {
+public class TurboModeCollisionStrategy implements CollisionStrategy {
+
 	private final BrickerGameManager brickerGameManager;
 
 	/**
@@ -17,7 +19,7 @@ public class ExtraPaddleCollisionStrategy implements CollisionStrategy {
 	 *
 	 * @param brickerGameManager used to trigger brick strategy in the gameManager Object
 	 */
-	public ExtraPaddleCollisionStrategy(BrickerGameManager brickerGameManager) {
+	public TurboModeCollisionStrategy(BrickerGameManager brickerGameManager) {
 		this.brickerGameManager = brickerGameManager;
 	}
 
@@ -25,15 +27,22 @@ public class ExtraPaddleCollisionStrategy implements CollisionStrategy {
 	@Override
 	/**
 	 * function that sets behaviour on collision
+	 * only triggers special behaviour if hit by main ball
+	 * not by puck by checking with instance of
 	 *
 	 * @param object1 first object-got hit
 	 * @param object2 second object - the hitter
 	 */
 	public void onCollision(GameObject object1, GameObject object2) {
-		this.brickerGameManager.triggerExtraPaddle();
+		if (object2 instanceof Puck) {
+			if (this.brickerGameManager.deleteStaticObject(object1)) {
+				this.brickerGameManager.updateBricksCounter();
+			}
+			return;
+		}
+		this.brickerGameManager.triggerTurboMode();
 		if (this.brickerGameManager.deleteStaticObject(object1)) {
 			this.brickerGameManager.updateBricksCounter();
 		}
-		;
 	}
 }

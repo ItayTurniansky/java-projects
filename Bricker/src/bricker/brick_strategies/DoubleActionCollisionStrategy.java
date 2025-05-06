@@ -1,6 +1,6 @@
-package Bricker.brick_strategies;
+package bricker.brick_strategies;
 
-import Bricker.main.BrickerGameManager;
+import bricker.main.BrickerGameManager;
 import danogl.GameObject;
 
 import java.util.Random;

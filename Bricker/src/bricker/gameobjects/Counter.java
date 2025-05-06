@@ -1,4 +1,4 @@
-package Bricker.gameobjects;
+package bricker.gameobjects;
 
 import danogl.gui.rendering.TextRenderable;
 

@@ -1,4 +1,4 @@
-package Bricker.gameobjects;
+package bricker.gameobjects;
 
 import danogl.gui.Sound;
 import danogl.gui.rendering.Renderable;

@@ -1,7 +1,7 @@
-package Bricker.main;
+package bricker.main;
 
-import Bricker.brick_strategies.*;
-import Bricker.gameobjects.*;
+import bricker.brick_strategies.*;
+import bricker.gameobjects.*;
 import danogl.GameManager;
 import danogl.GameObject;
 import danogl.collisions.Layer;
@@ -17,8 +17,6 @@ import java.awt.event.KeyEvent;
 import java.util.*;
 import java.util.List;
 import java.util.Random;
-
-import static Bricker.brick_strategies.DoubleActionCollisionStrategy.*;
 
 /**
  * BrickerGameManger class for controlling the bricker game
@@ -37,7 +35,7 @@ public class BrickerGameManager extends GameManager {
 	private static final float PADDLE_LENGTH = 100;
 	private static final float PADDLE_WIDTH = 15;
 	private static final float PADDLE_Y = 20;
-	private static final float WALL_WIDTH = 30;
+	private static final float WALL_WIDTH = 22;
 	private static final Color BORDER_COLOR = Color.cyan;
 	private static final float BRICK_HEIGHT = 15;
 	private static final int DEFAULT_BRICKS_ROW_NUM = 7;
@@ -63,7 +61,7 @@ public class BrickerGameManager extends GameManager {
 	private static final String MOCK_BALL_PATH = "assets/mockBall.png";
 	private static final String SOUND_PATH = "assets/blop.wav";
 	private static final String RED_BALL_PATH = "assets/redball.png";
-	private static final String GAME_TITLE = "Bricker";
+	private static final String GAME_TITLE = "bricker";
 	private static final String MAIN_BALL_PATH = "assets/ball.png";
 	private static final String WINNING_MASSAGE = "You Win! Play again?";
 	private static final String LOSING_MASSAGE = "You lose! Play again?";

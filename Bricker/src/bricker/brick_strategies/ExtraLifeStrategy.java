@@ -1,15 +1,15 @@
-package Bricker.brick_strategies;
+package bricker.brick_strategies;
 
-import Bricker.main.BrickerGameManager;
+import bricker.main.BrickerGameManager;
 import danogl.GameObject;
 
 /**
- * ExtraBallCollisionStrategy class implements the CollisionStrategy interface
+ * ExtraLifeStrategy class implements the CollisionStrategy interface
  * this strategy gives 2 extra pucks for the player to play with.
  *
  * @author itayt
  */
-public class ExtraBallCollisionStrategy implements CollisionStrategy {
+public class ExtraLifeStrategy implements CollisionStrategy {
 	private final BrickerGameManager brickerGameManager;
 
 	/**
@@ -17,7 +17,7 @@ public class ExtraBallCollisionStrategy implements CollisionStrategy {
 	 *
 	 * @param brickerGameManager used to trigger brick strategy in the gameManager Object
 	 */
-	public ExtraBallCollisionStrategy(BrickerGameManager brickerGameManager) {
+	public ExtraLifeStrategy(BrickerGameManager brickerGameManager) {
 		this.brickerGameManager = brickerGameManager;
 	}
 
@@ -30,10 +30,9 @@ public class ExtraBallCollisionStrategy implements CollisionStrategy {
 	 * @param object2 second object - the hitter
 	 */
 	public void onCollision(GameObject object1, GameObject object2) {
-		this.brickerGameManager.triggerExtraBall(object1);
+		this.brickerGameManager.triggerExtraLife(object1);
 		if (this.brickerGameManager.deleteStaticObject(object1)) {
 			this.brickerGameManager.updateBricksCounter();
 		}
-		;
 	}
 }

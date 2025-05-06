@@ -1,0 +1,56 @@
+itayturni
+322690397
+
+1) i chose the second option, keeping the responsibility of
+adding and deleting objects to the BrickerGameManager class.
+advantages- it keep encapsulation, makes it more
+accessible to future changes and makes it less complex.
+it prevents mistakes made by different classes on the same
+game objects and makes debugging a lot easier.
+disadvantages- it makes the BrickerGameManager long
+and loaded with functions and methods for different stuff,
+makes it less readable.
+
+2) i created two classes: Heart,Counter.
+Heart- object represents the hearts of the life counter extends game object,
+Counter- object represents the counter extends TextRenderable.
+i kept all the logic and help functions of handling the life counter
+and hearts in the BrickerGameManager to prevent confusion and maintain
+encapsulation. the BrickerGameManager check if the ball leaves the screen
+or if a heart was collected by the paddle and updates the lif counter and
+heart display. it also uses it to check win/lose.
+
+3) i used a strategy-trigger concept.
+each brick has one of the strategies (based on the odds given)
+as a field and when that brick is collided with
+it triggers the relative function in the BrickerGameManager
+that handles the specific strategy logic in the game.
+
+ExtraBall- created a puck class(extends ball)
+and used to the brick center for starting point
+also made sure to delete pucks when leaving the screen
+
+ExtraPaddle- Used screen length to find center,
+created ExtraPaddle class extends Paddle, same movement logic as
+main paddle. also used tags to prevent hearts being collected by the
+extra paddle.
+
+TurboMode- brick only triggers logic when the main ball is collided with
+game ball speed and picture are changed according to instructions.
+i used a counter in the main class that counts to 6 hits using the
+get collision counter method in the ball class and then restores the ball
+to its original state.
+
+ExtraLife- triggers a heart game object falling according to instruction
+made sure the heart can only be collected by main paddle and not by the extra one.
+then updated the life display and counter accordingly.
+
+all new moving objects created are deleted when leaving the screen.
+
+4)i created a new strategy that has an array of strategies of size 3
+and by that i restricted it to only 3 strategies,
+i used a constant so this can be changed by one change.
+then i used random with the given odds in the instructions to create
+the array of 3 strategies including handling the case where a double action
+is chosen again and then having 3 strategies.
+then i gave the odds for bricks to be double action as instructed.
