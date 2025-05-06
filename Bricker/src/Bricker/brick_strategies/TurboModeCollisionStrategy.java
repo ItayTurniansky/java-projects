@@ -34,7 +34,7 @@ public class TurboModeCollisionStrategy implements CollisionStrategy {
 	 * @param object2 second object - the hitter
 	 */
 	public void onCollision(GameObject object1, GameObject object2) {
-		if (object1 instanceof Puck) {
+		if (object2 instanceof Puck) {
 			if (this.brickerGameManager.deleteStaticObject(object1)) {
 				this.brickerGameManager.updateBricksCounter();
 			}

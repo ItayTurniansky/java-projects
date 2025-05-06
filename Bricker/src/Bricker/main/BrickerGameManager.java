@@ -29,22 +29,22 @@ public class BrickerGameManager extends GameManager {
 	/*
 	constants for sizes, speed, buffers etc...
 	 */
-	private static final float BALL_SPEED = 300;
+	private static final float BALL_SPEED = 250;
 	private static final float SCREEN_CENTER = 0.5f;
 	private static final float BALL_SIZE = 20;
-	private static final float SCREEN_LENGTH = 800;
-	private static final float SCREEN_WIDTH = 1200;
+	private static final float SCREEN_LENGTH = 600;
+	private static final float SCREEN_WIDTH = 750;
 	private static final float PADDLE_LENGTH = 100;
 	private static final float PADDLE_WIDTH = 15;
 	private static final float PADDLE_Y = 20;
 	private static final float WALL_WIDTH = 30;
-	private static final Color BORDER_COLOR = Color.CYAN;
+	private static final Color BORDER_COLOR = Color.cyan;
 	private static final float BRICK_HEIGHT = 15;
 	private static final int DEFAULT_BRICKS_ROW_NUM = 7;
 	private static final int DEFAULT_BRICKS_PER_ROW = 8;
 	private static final float BRICK_BUFFER_SIZE = 5;
 	private static final int START_LIVES = 3;
-	private static final int TARGET_FRAMERATE = 60;
+	private static final int TARGET_FRAMERATE = 55;
 	private static final int MAX_HEARTS = 4;
 	private static final float HEART_START = 20;
 	private static final float HEART_BUFFER = 30;
@@ -59,6 +59,20 @@ public class BrickerGameManager extends GameManager {
 	private static final double TURBO_MODE_ODDS = 0.3;
 	private static final double EXTRA_LIFE_ODDS = 0.4;
 	private static final double DOUBLE_ACTION_ODDS = 0.5;
+	private static final int ARGS_NUM = 2;
+	private static final String MOCK_BALL_PATH = "assets/mockBall.png";
+	private static final String SOUND_PATH = "assets/blop.wav";
+	private static final String RED_BALL_PATH = "assets/redball.png";
+	private static final String GAME_TITLE = "Bricker";
+	private static final String MAIN_BALL_PATH = "assets/ball.png";
+	private static final String WINNING_MASSAGE = "You Win! Play again?";
+	private static final String LOSING_MASSAGE = "You lose! Play again?";
+	private static final String PADDLE_PATH = "assets/paddle.png";
+	private static final String MAIN_PADDLE_TAG = "MainPaddle";
+	private static final String BRICK_PATH = "assets/brick.png";
+	private static final String BACKGROUND_PATH = "assets/DARK_BG2_small.jpeg";
+	private static final String HEART_PATH = "assets/heart.png";
+
 
 	/*
 	class fields for maintaining objects and transferring them to
@@ -197,8 +211,8 @@ public class BrickerGameManager extends GameManager {
 	 * @param object used to get the center of the brick so the balls will start from it
 	 */
 	public void triggerExtraBall(GameObject object) {
-		Renderable puckImage = imageReader.readImage("assets/mockBall.png", true);
-		Sound collisionSound = soundReader.readSound("assets/blop.wav");
+		Renderable puckImage = imageReader.readImage(MOCK_BALL_PATH, true);
+		Sound collisionSound = soundReader.readSound(SOUND_PATH);
 		for (int i = 0; i < 2; i++) {
 			Puck puck = new Puck(Vector2.ZERO, new Vector2(BALL_SIZE * PUCK_MULTIPLAYER,
 					BALL_SIZE * PUCK_MULTIPLAYER), puckImage, collisionSound);
@@ -217,7 +231,7 @@ public class BrickerGameManager extends GameManager {
 	}
 
 	/**
-	 * handles an TurboMode brick behaviour when its hit
+	 * handles an Extra Paddle brick behaviour when its hit
 	 */
 	public void triggerExtraPaddle() {
 		if (currentExtraPaddle == null) {
@@ -237,7 +251,7 @@ public class BrickerGameManager extends GameManager {
 	 */
 	public void triggerTurboMode() {
 		if (!isTurbo) {
-			ball.renderer().setRenderable(imageReader.readImage("assets/redball.png",
+			ball.renderer().setRenderable(imageReader.readImage(RED_BALL_PATH,
 					true));
 			ball.setVelocity(ball.getVelocity().mult(TURBO_FACTOR));
 			isTurbo = true;
@@ -271,14 +285,14 @@ public class BrickerGameManager extends GameManager {
 	 * @param args input CLI arguments
 	 */
 	public static void main(String[] args) {
-		if (args.length == 2) {
+		if (args.length == ARGS_NUM) {
 			int rowNum = Integer.parseInt(args[0]);
 			int bricksPerRow = Integer.parseInt(args[1]);
-			GameManager gameManager = new BrickerGameManager("Bricker",
+			GameManager gameManager = new BrickerGameManager(GAME_TITLE,
 					new Vector2(SCREEN_WIDTH, SCREEN_LENGTH), rowNum, bricksPerRow);
 			gameManager.run();
 		} else {
-			GameManager gameManager = new BrickerGameManager("Bricker",
+			GameManager gameManager = new BrickerGameManager(GAME_TITLE,
 					new Vector2(SCREEN_WIDTH, SCREEN_LENGTH), DEFAULT_BRICKS_ROW_NUM, DEFAULT_BRICKS_PER_ROW);
 			gameManager.run();
 		}
@@ -291,7 +305,7 @@ public class BrickerGameManager extends GameManager {
 	private void restoreTurboMode() {
 		if (isTurbo) {
 			isTurbo = false;
-			ball.renderer().setRenderable(imageReader.readImage("assets/ball.png", true));
+			ball.renderer().setRenderable(imageReader.readImage(MAIN_BALL_PATH, true));
 			ball.setVelocity(ball.getVelocity().mult(1 / TURBO_FACTOR));
 		}
 	}
@@ -340,7 +354,7 @@ public class BrickerGameManager extends GameManager {
 
 	private void checkWin() {
 		if (bricksLeft == 0 || inputListener.isKeyPressed(KeyEvent.VK_W)) {
-			if (windowController.openYesNoDialog("You Win! Play again?")) {
+			if (windowController.openYesNoDialog(WINNING_MASSAGE)) {
 				this.lives = START_LIVES;
 				this.bricksLeft = rowNum * bricksPerRows;
 				restGameHelper();
@@ -361,7 +375,7 @@ public class BrickerGameManager extends GameManager {
 				centerBall(ball);
 				lives -= 1;
 			} else {
-				if (windowController.openYesNoDialog("You lose! Play again?")) {
+				if (windowController.openYesNoDialog(LOSING_MASSAGE)) {
 					this.lives = START_LIVES;
 					restGameHelper();
 					windowController.resetGame();
@@ -400,8 +414,8 @@ public class BrickerGameManager extends GameManager {
 	 */
 
 	private void createBall(ImageReader imageReader, SoundReader soundReader) {
-		ballImage = imageReader.readImage("assets/ball.png", true);
-		collisionSound = soundReader.readSound("assets/blop.wav");
+		ballImage = imageReader.readImage(MAIN_BALL_PATH, true);
+		collisionSound = soundReader.readSound(SOUND_PATH);
 		ball = new Ball(Vector2.ZERO, new Vector2(BALL_SIZE, BALL_SIZE), ballImage, collisionSound);
 		gameObjects().addGameObject(ball);
 		centerBall(ball);
@@ -426,9 +440,9 @@ public class BrickerGameManager extends GameManager {
 	 */
 
 	private void createUserPaddle(ImageReader imageReader, UserInputListener inputListener) {
-		paddleImage = imageReader.readImage("assets/paddle.png", true);
+		paddleImage = imageReader.readImage(PADDLE_PATH, true);
 		userPaddle = new Paddle(Vector2.ZERO, new Vector2(PADDLE_LENGTH, PADDLE_WIDTH),
-				paddleImage, inputListener, SCREEN_WIDTH, "MainPaddle");
+				paddleImage, inputListener, SCREEN_WIDTH, MAIN_PADDLE_TAG);
 		gameObjects().addGameObject(userPaddle);
 		userPaddle.setCenter(new Vector2(windowDimensions.x() * SCREEN_CENTER,
 				windowDimensions.y() - PADDLE_Y));
@@ -438,7 +452,7 @@ public class BrickerGameManager extends GameManager {
 	 */
 
 	private void createBricks(ImageReader imageReader, int numRows, int numBricksPerRow) {
-		Renderable brickImage = imageReader.readImage("assets/brick.png", false);
+		Renderable brickImage = imageReader.readImage(BRICK_PATH, false);
 		float availableWidth = SCREEN_WIDTH - 2 * WALL_WIDTH - (numBricksPerRow + 1) * BRICK_BUFFER_SIZE;
 		float brickWidth = availableWidth / numBricksPerRow;
 		float startX = WALL_WIDTH + BRICK_BUFFER_SIZE;
@@ -462,7 +476,7 @@ public class BrickerGameManager extends GameManager {
 	 */
 	private void createBackground(ImageReader imageReader) {
 		Renderable backgroundImage = imageReader.readImage
-				("assets/DARK_BG2_small.jpeg", true);
+				(BACKGROUND_PATH, true);
 		GameObject background = new GameObject(Vector2.ZERO,
 				new Vector2(SCREEN_WIDTH, SCREEN_LENGTH), backgroundImage);
 		background.setCoordinateSpace(CoordinateSpace.CAMERA_COORDINATES);
@@ -497,7 +511,7 @@ public class BrickerGameManager extends GameManager {
 	create the life display
 	 */
 	private void createLivesDisplay(ImageReader imageReader) {
-		heartImage = imageReader.readImage("assets/heart.png", true);
+		heartImage = imageReader.readImage(HEART_PATH, true);
 		hearts = new Heart[MAX_HEARTS];
 
 		for (int i = 0; i < lives; i++) {
