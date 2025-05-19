@@ -21,7 +21,7 @@ public class ImageProcessor {
 		int xOffset = (newWidth - original.getWidth()) / 2;
 		for (int y = 0; y < original.getHeight(); y++) {
 			for (int x = 0; x < original.getWidth(); x++) {
-				newColors[yOffset + y][xOffset + x] = original.getPixel(x, y);
+				newColors[yOffset + y][xOffset + x] = original.getPixel(y, x);
 			}
 		}
 		return new Image(newColors, newWidth, newHeight);
@@ -39,7 +39,7 @@ public class ImageProcessor {
 					for (int x = 0; x < resolution; x++) {
 						int srcX = col * resolution + x;
 						int srcY = row * resolution + y;
-						tilePixels[y][x] = padded.getPixel(srcX, srcY);
+						tilePixels[y][x] = padded.getPixel(srcY, srcX);
 					}
 				}
 
@@ -53,7 +53,7 @@ public class ImageProcessor {
 		double totalGrey =0.0;
 		for (int y = 0; y < tile.getHeight(); y++) {
 			for (int x = 0; x < tile.getWidth(); x++) {
-				Color c = tile.getPixel(x, y);
+				Color c = tile.getPixel(y, x);
 				double greyPixel = c.getRed()* RED_TO_GREY +
 						c.getGreen() * GREEN_TO_GREY +
 						c.getBlue() * BLUE_TO_GREY;

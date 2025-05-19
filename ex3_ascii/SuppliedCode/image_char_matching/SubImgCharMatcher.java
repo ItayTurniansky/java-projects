@@ -10,8 +10,10 @@ public class SubImgCharMatcher {
 
 	public SubImgCharMatcher(char[] charset) {
 		this.charMap = new HashMap<>();
-		for (int i = 0; i < charset.length; i++) {
-			charMap.put(charset[i], 0.0);
+		for (char c : charset) {
+			if (!charMap.containsKey(c)) {
+				charMap.put(c, null); // or any marker for "not yet calculated"
+			}
 		}
 		calculateBrightnessMap();
 	}
@@ -46,23 +48,25 @@ public class SubImgCharMatcher {
 		double maxBrightness = 0.0;
 		double minBrightness = 1.0;
 		for (Map.Entry<Character, Double> entry : this.charMap.entrySet()) {
-			double trueCounter =0;
-			boolean[][] tmpBoolArray = CharConverter.convertToBoolArray(entry.getKey());
-			for (int i = 0; i < tmpBoolArray.length; i++) {
-				for (int j = 0; j < tmpBoolArray[i].length; j++) {
-					if (tmpBoolArray[i][j]) {
-						trueCounter++;
+			if(entry.getValue() == null) {
+				double trueCounter = 0;
+				boolean[][] tmpBoolArray = CharConverter.convertToBoolArray(entry.getKey());
+				for (int i = 0; i < tmpBoolArray.length; i++) {
+					for (int j = 0; j < tmpBoolArray[i].length; j++) {
+						if (tmpBoolArray[i][j]) {
+							trueCounter++;
+						}
 					}
 				}
+				double brightness = trueCounter / (RESOLUTION * RESOLUTION);
+				entry.setValue(brightness);
 			}
-			double brightness = trueCounter / (RESOLUTION * RESOLUTION);
-			if (brightness >= maxBrightness) {
-				maxBrightness = brightness;
+			if (entry.getValue() >= maxBrightness) {
+				maxBrightness = entry.getValue();
 			}
-			if (brightness <= minBrightness) {
-				minBrightness = brightness;
+			if (entry.getValue() <= minBrightness) {
+				minBrightness = entry.getValue();
 			}
-			entry.setValue(brightness);
 
 		}
 
