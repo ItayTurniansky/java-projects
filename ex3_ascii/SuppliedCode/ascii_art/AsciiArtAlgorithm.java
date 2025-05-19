@@ -40,18 +40,5 @@ public class AsciiArtAlgorithm {
 		cache.update(image, resolution, charset, result);
 		return result;
 	}
-	public static void main(String[] args) {
-		HtmlAsciiOutput htmlOutput = new HtmlAsciiOutput("out.html", "New Courier");
-		ConsoleAsciiOutput consoleOutput = new ConsoleAsciiOutput();
-		try{
-			Image imageBoard = new Image("C:/Users/itayt/OOP_Projects/java-projects/ex3_ascii/examples/board.jpeg");
-			Image imageCat = new Image("C:/Users/itayt/OOP_Projects/java-projects/ex3_ascii/examples/cat.jpeg");
 
-			char[] charset = new char[] {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'};
-			consoleOutput.out(new AsciiArtAlgorithm(2,imageBoard,new char[] {'O', 'M'}).run());
-			htmlOutput.out(new AsciiArtAlgorithm(256,imageCat, charset).run());
-		} catch (IOException e){
-			System.out.println("IO Exception");
-		}
-	}
 }
