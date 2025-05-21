@@ -2,27 +2,39 @@ package image_char_matching;
 import java.util.HashMap;
 import java.util.Map;
 import java.lang.Math;
+import java.util.TreeMap;
 
 public class SubImgCharMatcher {
 	private static final int RESOLUTION = 16;
 	private static final double STANDARD_BRIGHTNESS = 0.5;
-	private HashMap<Character, Double> charMap;
+	private TreeMap<Character, Double> charMap;
+	private String round;
 
 	public SubImgCharMatcher(char[] charset) {
-		this.charMap = new HashMap<>();
+		this.charMap = new TreeMap<>();
 		for (char c : charset) {
 			if (!charMap.containsKey(c)) {
-				charMap.put(c, null); // or any marker for "not yet calculated"
+				charMap.put(c, null);
 			}
 		}
+		round ="abs";
 		calculateBrightnessMap();
 	}
 
 	public char getCharByImageBrightness(double brightness) {
 		double minDiff = 1.0;
 		char bestChar = 0;
+		double diff = 0;
 		for (Map.Entry<Character, Double> entry : charMap.entrySet()) {
-			double diff = Math.abs(entry.getValue() - brightness);
+			if (this.round.equals("abs")) {
+				diff = Math.abs(entry.getValue() - brightness);
+			}
+			if (this.round.equals("up")) {
+				diff = Math.nextUp(entry.getValue() - brightness);
+			}
+			if (this.round.equals("down")) {
+				diff = Math.nextDown(entry.getValue() - brightness);
+			}
 			if (diff < minDiff) {
 				minDiff = diff;
 				bestChar = entry.getKey();
@@ -30,10 +42,13 @@ public class SubImgCharMatcher {
 		}
 		return bestChar;
 	}
+	public void setRound(String round) {
+		this.round = round;
+	}
 
 	public void addChar(char c) {
 		if (!charMap.containsKey(c)) {
-			charMap.put(c, 0.0);
+			charMap.put(c, null);
 			calculateBrightnessMap();
 		}
 
@@ -42,6 +57,10 @@ public class SubImgCharMatcher {
 	public void removeChar(char c) {
 		this.charMap.remove(c);
 		calculateBrightnessMap();
+	}
+
+	public TreeMap<Character, Double> getCharMap() {
+		return charMap;
 	}
 
 	private void calculateBrightnessMap() {

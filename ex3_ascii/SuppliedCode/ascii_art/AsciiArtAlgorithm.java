@@ -34,7 +34,8 @@ public class AsciiArtAlgorithm {
 		SubImgCharMatcher subImageCharMatcher = new SubImgCharMatcher(this.charset);
 		for (int y = 0; y < tiles.length; y++) {
 			for (int x = 0; x < tiles[y].length; x++) {
-				result[y][x] = subImageCharMatcher.getCharByImageBrightness(ImageProcessor.computeBrightness(tiles[y][x]));
+				result[y][x] = subImageCharMatcher.getCharByImageBrightness
+						(ImageProcessor.computeBrightness(tiles[y][x]));
 			}
 		}
 		cache.update(image, resolution, charset, result);
