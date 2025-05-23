@@ -38,7 +38,8 @@ memory allocation is the same as all maps and is efficient.
  in the instruction in the shell class.(wrong commands/arguments)
  I caught all exceptions in the shell class and printed the instructed output based on each exception.
 
-4) the only change i made in the SubUmgCharMatcher class API was adding getCharMap public method.
+4)first change i made in the SubUmgCharMatcher class API was adding getCharMap public method.
 this method returns the charset map used in the shell for printing the charset given the char command.
+second change - added round field for keeping the chosen way to round chosen by the user.
 
 5)No Changes were made to the other given classes.
