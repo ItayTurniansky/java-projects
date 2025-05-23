@@ -1,0 +1,41 @@
+itayturni
+322690397
+
+1)ascii_art package- contains:
+ KeyboardInput- handles user shell input.
+ AsciiArtAlgorithm - runs the full asciiArt algorithm on given parameters and picture
+ AsciiArtCache - singleton class that saves the last rendered ascii picture for runtime saving.
+ Shell - handles all shell commands from user according to instructions.
+
+image package - contains:
+Image - image object class for further algorithm use.
+ImageProcessor - class with static methods for processing images (pad and split).
+
+image_char_matching - contains:
+CharConverter - used for changing chars to bool array for ascii algorithm.
+SubImgCharMatcher - ascii algorithm implementation.
+
+ascii_output - contains:
+AsciiOutput - interface for ascii output types
+ConsoleAsciiOutput - used for printing the ascii result to the console
+HtmlAsciiOutput - used for creating an html file with the ascii output.
+
+2) i used TreeMap in the SubImgCharMatcher class for keeping the ascii algorithm values of each char in the charset.
+i used TreeMap because it also sorts the keys by their value(ascii code for chars) so it automatically fills the exercise
+instructions for printing the charset ordered by ascii value,
+it orders the chars by their ascii in case their ascii algorithm value is the same.
+this data structure maintains o(log(n)) runtime complexity for inserting, deletion and getting.
+memory allocation is the same as all maps and is efficient.
+
+-i also created a singleton class for the AsciiArtAlgorithm for keeping the latest result
+ in case of rerunning with the same values. and by that saving runtime and memory allocations.
+
+3) i used java exception mechanism in the shell and AsciiAlgorithm.
+- throwing IO exceptions in case of image being wrongly rendered or wrong path
+- throwing IllegalArgument Exceptions in all cases provided in the instruction in the shell class.(wrong commands/arguments)
+ I caught all exceptions in the shell class and printed the instructed output based on each exception.
+
+4) the only change i made in the SubUmgCharMatcher class API was adding getCharMap public method.
+this method returns the charset map used in the shell for printing the charset given the char command.
+
+5)No Changes were made to the other given classes.
