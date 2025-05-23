@@ -18,7 +18,7 @@ import java.util.Arrays;
 public class Shell {
 	// Constants
 	private static final String EXIT_STATEMENT = "exit";
-	private static final String COMMAND_INPUT_STRING = "<<<";
+	private static final String COMMAND_INPUT_STRING = ">>> ";
 	private static final String CHARS_COMMAND = "chars";
 	private static final String ADD_STATEMENT = "add";
 	private static final String REMOVE_STATEMENT = "remove";
@@ -65,6 +65,7 @@ public class Shell {
 		this.charMatcher = new SubImgCharMatcher(new char[]{
 				'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'
 		});
+
 		this.resolution = DEFAULT_RES;
 		this.asciiOutput = new ConsoleAsciiOutput();
 	}
@@ -85,15 +86,14 @@ public class Shell {
 			return;
 		}
 
-		while (true) {
-			System.out.print(COMMAND_INPUT_STRING);
-			String input = KeyboardInput.readLine();
+		// Initial prompt
+		System.out.print(COMMAND_INPUT_STRING);
+		String input = KeyboardInput.readLine();
+
+		while (!input.equals(EXIT_STATEMENT)) {
 			String[] inputArray = input.split(" ");
 			String command = inputArray[0];
 			String commandArg = (inputArray.length == 2) ? inputArray[1] : "";
-
-			if (command.equals(EXIT_STATEMENT)) break;
-
 			boolean executed = true;
 
 			switch (command) {
@@ -149,6 +149,9 @@ public class Shell {
 			if (!executed) {
 				System.out.println("Did not execute due to incorrect command.");
 			}
+
+			System.out.print(COMMAND_INPUT_STRING);
+			input = KeyboardInput.readLine();
 		}
 	}
 
