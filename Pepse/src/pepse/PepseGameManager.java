@@ -11,6 +11,7 @@ import pepse.world.Block;
 import pepse.world.Sky;
 import pepse.world.Terrain;
 import pepse.world.daynight.Night;
+import pepse.world.daynight.Sun;
 
 import java.util.List;
 import java.util.Random;
@@ -49,6 +50,8 @@ public class PepseGameManager extends GameManager {
 		createTerrain();
 		GameObject night = Night.create(windowController.getWindowDimensions(), NIGHT_CYCLE_LENGTH);
 		gameObjects().addGameObject(night, Layer.UI);
+		GameObject sun = Sun.create(windowController.getWindowDimensions(), NIGHT_CYCLE_LENGTH);
+		gameObjects().addGameObject(sun, Layer.BACKGROUND);
 
 	}
 
