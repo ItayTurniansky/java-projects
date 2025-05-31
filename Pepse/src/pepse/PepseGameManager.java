@@ -11,10 +11,11 @@ import pepse.world.Block;
 import pepse.world.Sky;
 import pepse.world.Terrain;
 import java.util.List;
+import java.util.Random;
 
 public class PepseGameManager extends GameManager {
 	private static final int FRAME_RATE = 40;
-	private static final int SEED = 4;
+	private final Random seed = new Random();
 
 	/**
 	 * The method will be called once when a GameGUIComponent is created,
@@ -40,7 +41,7 @@ public class PepseGameManager extends GameManager {
 		windowController.setTargetFramerate(FRAME_RATE);
 		GameObject sky = Sky.create(windowController.getWindowDimensions());
 		gameObjects().addGameObject(sky, Layer.BACKGROUND);
-		Terrain terrain = new Terrain(windowController.getWindowDimensions(), SEED);
+		Terrain terrain = new Terrain(windowController.getWindowDimensions(), seed.nextInt());
 		List<Block> block_list = terrain.createInRange(0, (int) windowController.getWindowDimensions().x());
 		for (Block b : block_list) {
 			gameObjects().addGameObject(b, Layer.STATIC_OBJECTS);

@@ -34,6 +34,7 @@ public class Terrain {
 					BASE_GROUND_COLOR));
 			float topBlockHeight = groundHeightAt(x);
 			Block block = new Block(new Vector2((float)x,topBlockHeight),blockRenderable);
+			block.setTag("topGround");
 			blocks.add(block);
 			for (int i=0; i<TERRAIN_DEPTH; i++){
 				blockRenderable = new RectangleRenderable(ColorSupplier.approximateColor(
