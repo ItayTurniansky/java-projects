@@ -1,6 +1,4 @@
-package util;
-
-import java.util.Random;
+package pepse.world;
 
 public class NoiseGenerator {
     private double seed;

@@ -7,10 +7,14 @@ import danogl.gui.ImageReader;
 import danogl.gui.SoundReader;
 import danogl.gui.UserInputListener;
 import danogl.gui.WindowController;
+import pepse.world.Block;
 import pepse.world.Sky;
+import pepse.world.Terrain;
+import java.util.List;
 
 public class PepseGameManager extends GameManager {
-	private static final int FRAME_RATE = 55;
+	private static final int FRAME_RATE = 40;
+	private static final int SEED = 4;
 
 	/**
 	 * The method will be called once when a GameGUIComponent is created,
@@ -36,6 +40,11 @@ public class PepseGameManager extends GameManager {
 		windowController.setTargetFramerate(FRAME_RATE);
 		GameObject sky = Sky.create(windowController.getWindowDimensions());
 		gameObjects().addGameObject(sky, Layer.BACKGROUND);
+		Terrain terrain = new Terrain(windowController.getWindowDimensions(), SEED);
+		List<Block> block_list = terrain.createInRange(0, (int) windowController.getWindowDimensions().x());
+		for (Block b : block_list) {
+			gameObjects().addGameObject(b, Layer.STATIC_OBJECTS);
+		}
 	}
 
 
