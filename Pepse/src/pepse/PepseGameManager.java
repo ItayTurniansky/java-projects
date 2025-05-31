@@ -16,6 +16,7 @@ import java.util.Random;
 public class PepseGameManager extends GameManager {
 	private static final int FRAME_RATE = 40;
 	private final Random seed = new Random();
+	private WindowController windowController;
 
 	/**
 	 * The method will be called once when a GameGUIComponent is created,
@@ -38,16 +39,21 @@ public class PepseGameManager extends GameManager {
 	@Override
 	public void initializeGame(ImageReader imageReader, SoundReader soundReader, UserInputListener inputListener, WindowController windowController) {
 		super.initializeGame(imageReader, soundReader, inputListener, windowController);
+		this.windowController = windowController;
 		windowController.setTargetFramerate(FRAME_RATE);
 		GameObject sky = Sky.create(windowController.getWindowDimensions());
 		gameObjects().addGameObject(sky, Layer.BACKGROUND);
+		createTerrain();
+
+	}
+
+	private void createTerrain() {
 		Terrain terrain = new Terrain(windowController.getWindowDimensions(), seed.nextInt());
 		List<Block> block_list = terrain.createInRange(0, (int) windowController.getWindowDimensions().x());
 		for (Block b : block_list) {
 			gameObjects().addGameObject(b, Layer.STATIC_OBJECTS);
 		}
 	}
-
 
 
 	public static void main(String[] args) {
