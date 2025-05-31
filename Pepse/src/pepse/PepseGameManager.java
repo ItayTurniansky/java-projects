@@ -10,11 +10,14 @@ import danogl.gui.WindowController;
 import pepse.world.Block;
 import pepse.world.Sky;
 import pepse.world.Terrain;
+import pepse.world.daynight.Night;
+
 import java.util.List;
 import java.util.Random;
 
 public class PepseGameManager extends GameManager {
 	private static final int FRAME_RATE = 40;
+	private static final float NIGHT_CYCLE_LENGTH = 30;
 	private final Random seed = new Random();
 	private WindowController windowController;
 
@@ -44,6 +47,8 @@ public class PepseGameManager extends GameManager {
 		GameObject sky = Sky.create(windowController.getWindowDimensions());
 		gameObjects().addGameObject(sky, Layer.BACKGROUND);
 		createTerrain();
+		GameObject night = Night.create(windowController.getWindowDimensions(), NIGHT_CYCLE_LENGTH);
+		gameObjects().addGameObject(night, Layer.UI);
 
 	}
 
