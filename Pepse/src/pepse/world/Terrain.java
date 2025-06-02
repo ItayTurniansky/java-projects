@@ -9,9 +9,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Terrain {
+	public static final float TERRAIN_MIN_HEIGHT = (float) 2 / 3;
+
 	private static final int TERRAIN_DEPTH = 20;
 	private static final Color BASE_GROUND_COLOR = new Color(212, 123, 74);
-	private static final float TERRAIN_MIN_HEIGHT = (float) 2 / 3;
 	private static final int NOISE_FACTOR = 7;
 	private int groundHeightAtX0;
 	private int seed;

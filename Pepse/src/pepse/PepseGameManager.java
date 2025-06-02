@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.Random;
 
 public class PepseGameManager extends GameManager {
-	private static final int FRAME_RATE = 40;
+	private static final int FRAME_RATE = 120;
 	private static final float NIGHT_CYCLE_LENGTH = 30;
 	private final Random seed = new Random();
 	private WindowController windowController;
@@ -47,11 +47,11 @@ public class PepseGameManager extends GameManager {
 		windowController.setTargetFramerate(FRAME_RATE);
 		GameObject sky = Sky.create(windowController.getWindowDimensions());
 		gameObjects().addGameObject(sky, Layer.BACKGROUND);
+		GameObject sun = Sun.create(windowController.getWindowDimensions(), NIGHT_CYCLE_LENGTH);
+		gameObjects().addGameObject(sun, Layer.BACKGROUND);
 		createTerrain();
 		GameObject night = Night.create(windowController.getWindowDimensions(), NIGHT_CYCLE_LENGTH);
 		gameObjects().addGameObject(night, Layer.UI);
-		GameObject sun = Sun.create(windowController.getWindowDimensions(), NIGHT_CYCLE_LENGTH);
-		gameObjects().addGameObject(sun, Layer.BACKGROUND);
 
 	}
 
