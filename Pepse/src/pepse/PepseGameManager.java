@@ -7,11 +7,11 @@ import danogl.gui.ImageReader;
 import danogl.gui.SoundReader;
 import danogl.gui.UserInputListener;
 import danogl.gui.WindowController;
-import pepse.world.Block;
-import pepse.world.Sky;
-import pepse.world.Terrain;
+import danogl.util.Vector2;
+import pepse.world.*;
 import pepse.world.daynight.Night;
 import pepse.world.daynight.Sun;
+import pepse.world.daynight.SunHalo;
 
 import java.util.List;
 import java.util.Random;
@@ -19,6 +19,7 @@ import java.util.Random;
 public class PepseGameManager extends GameManager {
 	private static final int FRAME_RATE = 120;
 	private static final float NIGHT_CYCLE_LENGTH = 30;
+	private static final float ENERGY_COUNTER_SIZE = 50;
 	private final Random seed = new Random();
 	private WindowController windowController;
 
@@ -45,23 +46,43 @@ public class PepseGameManager extends GameManager {
 		super.initializeGame(imageReader, soundReader, inputListener, windowController);
 		this.windowController = windowController;
 		windowController.setTargetFramerate(FRAME_RATE);
+
 		GameObject sky = Sky.create(windowController.getWindowDimensions());
 		gameObjects().addGameObject(sky, Layer.BACKGROUND);
+
 		GameObject sun = Sun.create(windowController.getWindowDimensions(), NIGHT_CYCLE_LENGTH);
 		gameObjects().addGameObject(sun, Layer.BACKGROUND);
-		createTerrain();
-		GameObject night = Night.create(windowController.getWindowDimensions(), NIGHT_CYCLE_LENGTH);
-		gameObjects().addGameObject(night, Layer.UI);
 
-	}
+		GameObject sunHalo = SunHalo.create(sun);
+		gameObjects().addGameObject(sunHalo, Layer.BACKGROUND);
+		sunHalo.addComponent((deltaTime -> sunHalo.setCenter(sun.getCenter())));
 
-	private void createTerrain() {
 		Terrain terrain = new Terrain(windowController.getWindowDimensions(), seed.nextInt());
 		List<Block> block_list = terrain.createInRange(0, (int) windowController.getWindowDimensions().x());
 		for (Block b : block_list) {
 			gameObjects().addGameObject(b, Layer.STATIC_OBJECTS);
 		}
+
+
+		GameObject night = Night.create(windowController.getWindowDimensions(), NIGHT_CYCLE_LENGTH);
+		gameObjects().addGameObject(night, Layer.UI);
+
+		Vector2 avatarInitialLocation = new Vector2(windowController.getWindowDimensions().x()/2,
+				terrain.groundHeightAt(windowController.getWindowDimensions().x()/2)- Avatar.AVATAR_SIZE.y());
+		Avatar avatar = new Avatar(avatarInitialLocation, inputListener, imageReader);
+		gameObjects().addGameObject(avatar, Layer.DEFAULT);
+
+
+		EnergyCounter energyCounter = new EnergyCounter(String.valueOf((int)avatar.getEnergy()));
+		GameObject counterObject = new GameObject(
+				Vector2.ZERO,
+				new Vector2(ENERGY_COUNTER_SIZE, ENERGY_COUNTER_SIZE),
+				energyCounter
+		);
+		counterObject.addComponent((deltaTime -> energyCounter.update((int)avatar.getEnergy())));
+		gameObjects().addGameObject(counterObject, Layer.UI);
 	}
+
 
 
 	public static void main(String[] args) {
