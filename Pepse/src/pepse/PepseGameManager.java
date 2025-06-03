@@ -12,6 +12,7 @@ import pepse.world.*;
 import pepse.world.daynight.Night;
 import pepse.world.daynight.Sun;
 import pepse.world.daynight.SunHalo;
+import pepse.world.trees.Flora;
 
 import java.util.List;
 import java.util.Random;
@@ -81,6 +82,17 @@ public class PepseGameManager extends GameManager {
 		);
 		counterObject.addComponent((deltaTime -> energyCounter.update((int)avatar.getEnergy())));
 		gameObjects().addGameObject(counterObject, Layer.UI);
+
+		Flora flora = new Flora(terrain);
+		for (GameObject gameObject : flora.createInRange(0, (int) windowController.getWindowDimensions().x())) {
+			if (gameObject.getTag().equals("leaf")){
+				gameObjects().addGameObject(gameObject, Layer.DEFAULT);
+			}
+			if (gameObject.getTag().equals("trunk")){
+				gameObjects().addGameObject(gameObject, Layer.STATIC_OBJECTS);
+			}
+
+		}
 	}
 
 
