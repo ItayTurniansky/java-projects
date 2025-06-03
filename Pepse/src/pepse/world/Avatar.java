@@ -10,6 +10,8 @@ import danogl.util.Vector2;
 
 import java.awt.event.KeyEvent;
 import java.awt.image.renderable.RenderableImage;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Avatar extends GameObject {
 	public static final Vector2 AVATAR_SIZE = new Vector2(64, 64);
@@ -26,6 +28,22 @@ public class Avatar extends GameObject {
 	private AnimationRenderable sidewaysRenderable;
 	private AnimationRenderable upDownRenderable;
 	private AnimationRenderable idleRenderable;
+	private final List<JumpListener> jumpListeners = new ArrayList<>();
+
+
+	public void addJumpListener(JumpListener listener) {
+		jumpListeners.add(listener);
+	}
+
+	public void removeJumpListener(JumpListener listener) {
+		jumpListeners.remove(listener);
+	}
+
+	private void notifyJumpListeners() {
+		for (JumpListener listener : jumpListeners) {
+			listener.onJump();
+		}
+	}
 
 
 
@@ -90,6 +108,7 @@ public class Avatar extends GameObject {
 		!inputListener.isKeyPressed(KeyEvent.VK_LEFT) && !inputListener.isKeyPressed(KeyEvent.VK_RIGHT)) {
 			energy += 1;
 			this.renderer().setRenderable(idleRenderable);
+			notifyJumpListeners();
 		}
 	}
 
