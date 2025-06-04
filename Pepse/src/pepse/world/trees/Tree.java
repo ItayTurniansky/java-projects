@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Random;
 
 public class Tree {
-	private static final int LEAF_GRID_SIZE = 5; // 5x5 square of leaves
+	private static final int LEAF_GRID_SIZE = 10; // 5x5 square of leaves
 	private static final float LEAF_FILL_PROBABILITY = 0.6f;
 
 	private Random rand = new Random();
@@ -30,7 +30,7 @@ public class Tree {
 
 		for (int dx = -halfGrid; dx <= halfGrid; dx++) {
 			for (int dy = -halfGrid; dy <= halfGrid; dy++) {
-				if (rand.nextFloat() < LEAF_FILL_PROBABILITY) {
+				if (Math.abs(dx) + Math.abs(dy) <= 2 && rand.nextFloat() < LEAF_FILL_PROBABILITY) {
 					float leafX = centerX + dx * Leaf.SIZE - Leaf.SIZE / 2f;
 					float leafY = centerY + dy * Leaf.SIZE;
 					Vector2 leafPos = new Vector2(leafX, leafY);
