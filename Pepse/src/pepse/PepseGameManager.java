@@ -91,6 +91,9 @@ public class PepseGameManager extends GameManager {
 			if (gameObject.getTag().equals("trunk")){
 				gameObjects().addGameObject(gameObject, Layer.STATIC_OBJECTS);
 			}
+			if (gameObject.getTag().equals("fruit")){
+				gameObjects().addGameObject(gameObject, Layer.DEFAULT);
+			}
 
 		}
 	}

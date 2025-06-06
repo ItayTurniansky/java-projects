@@ -14,6 +14,7 @@ import java.util.Random;
 public class Tree {
 	private static final int LEAF_GRID_SIZE = 10;
 	private static final float LEAF_FILL_PROBABILITY = 0.8f;
+	private static final float FRUIT_FILL_PROBABILITY = 0.5f;
 	private static final float MAX_LEAF_ANGLE = 15f;
 	private static final float LEAF_MOVE_CYCLE = 1.2f;
 	private static final float LEAF_MOVE_MAX = 10f;
@@ -25,12 +26,13 @@ public class Tree {
 	private Random rand = new Random();
 	private Trunk trunk;
 	private List<Leaf> leaves;
+	private List<Fruit> fruits;
 
 	public Tree(Vector2 basePosition) {
 		float trunkTopY = basePosition.y() - Trunk.TRUNK_HEIGHT;
 		this.trunk = new Trunk(new Vector2(basePosition.x(), trunkTopY));
-		trunk.setTag("trunk");
 		this.leaves = new ArrayList<>();
+		this.fruits = new ArrayList<>();
 
 		float centerX = basePosition.x() + Trunk.TRUNK_WIDTH / 2f;
 		float centerY = trunkTopY - Leaf.SIZE / 2f;
@@ -43,7 +45,6 @@ public class Tree {
 					float leafY = centerY + dy * Leaf.SIZE;
 					Vector2 leafPos = new Vector2(leafX, leafY);
 					Leaf leaf = new Leaf(leafPos);
-					leaf.setTag("leaf");
 					leaves.add(leaf);
 
 					Leaf finalLeaf = leaf;
@@ -78,6 +79,13 @@ public class Tree {
 								);
 							}
 					);
+				} else if (Math.abs(dx) + Math.abs(dy) <= 2 && rand.nextFloat() < FRUIT_FILL_PROBABILITY) {
+					float fruitX = centerX + dx * Leaf.SIZE - Leaf.SIZE / 2f;
+					float fruitY = centerY + dy * Leaf.SIZE;
+					Vector2 fruitPos = new Vector2(fruitX, fruitY);
+					Fruit fruit = new Fruit(fruitPos);
+					fruits.add(fruit);
+
 				}
 			}
 		}
@@ -87,6 +95,7 @@ public class Tree {
 		List<GameObject> objs = new ArrayList<>();
 		objs.add(trunk);
 		objs.addAll(leaves);
+		objs.addAll(fruits);
 		return objs;
 	}
 }

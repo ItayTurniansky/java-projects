@@ -16,5 +16,6 @@ public class Trunk extends GameObject {
 		super(topLeftCorner, new Vector2(TRUNK_WIDTH, TRUNK_HEIGHT), new RectangleRenderable(TRUNK_COLOR));
 		physics().preventIntersectionsFromDirection(Vector2.ZERO);
 		physics().setMass(GameObjectPhysics.IMMOVABLE_MASS);
+		this.setTag("trunk");
 	}
 }

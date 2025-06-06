@@ -22,6 +22,7 @@ public class Avatar extends GameObject {
 	private static final float JUMP_ENERGY = 10;
 	private static final double RENDER_TIME = 0.1;
 	private static final float MAX_ENERGY = 100;
+	private static final float FRUIT_ENERGY = 10;
 
 	private UserInputListener inputListener;
 	private float energy;
@@ -110,6 +111,9 @@ public class Avatar extends GameObject {
 			this.renderer().setRenderable(idleRenderable);
 			notifyJumpListeners();
 		}
+		if(energy>MAX_ENERGY){
+			energy = MAX_ENERGY;
+		}
 	}
 
 	public float getEnergy() {
@@ -134,6 +138,9 @@ public class Avatar extends GameObject {
 		super.onCollisionEnter(other, collision);
 		if(other.getTag().equals("ground")){
 			this.transform().setVelocityY(0);
+		}
+		if(other.getTag().equals("fruit")){
+			this.addEnergy(FRUIT_ENERGY);
 		}
 
 	}

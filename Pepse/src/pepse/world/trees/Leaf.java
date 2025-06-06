@@ -12,6 +12,7 @@ public class Leaf extends GameObject {
 
 	public Leaf(Vector2 topLeftCorner) {
 		super(topLeftCorner, Vector2.ONES.mult(SIZE), new RectangleRenderable(LEAF_COLOR));
+		this.setTag("leaf");
 
 	}
 }
