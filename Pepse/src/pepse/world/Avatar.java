@@ -15,6 +15,7 @@ import java.awt.event.KeyEvent;
 import java.awt.image.renderable.RenderableImage;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public class Avatar extends GameObject {
 	public static final Vector2 AVATAR_SIZE = new Vector2(64, 64);
@@ -33,6 +34,7 @@ public class Avatar extends GameObject {
 	private AnimationRenderable upDownRenderable;
 	private AnimationRenderable idleRenderable;
 	private final List<JumpListener> jumpListeners = new ArrayList<>();
+	private Random rand = new Random();
 
 
 	public void addJumpListener(JumpListener listener) {
@@ -108,19 +110,22 @@ public class Avatar extends GameObject {
 			energy -= JUMP_ENERGY;
 			transform().setVelocityY(VELOCITY_Y);
 			this.renderer().setRenderable(upDownRenderable);
+			notifyJumpListeners();
+
 		}
 		if (energy < 100 && !inputListener.isKeyPressed(KeyEvent.VK_SPACE) &&
 		!inputListener.isKeyPressed(KeyEvent.VK_LEFT) && !inputListener.isKeyPressed(KeyEvent.VK_RIGHT)) {
-			new ScheduledTask(
-					this,
-					LIFE_REGEN_DELAY,
-					false,
-					() -> {
-						energy += 1;
-					}
-			);
+			if(rand.nextBoolean()){
+				new ScheduledTask(
+						this,
+						LIFE_REGEN_DELAY,
+						false,
+						() -> {
+							energy += 1;
+						}
+				);
+			}
 			this.renderer().setRenderable(idleRenderable);
-			notifyJumpListeners();
 		}
 		if(energy>MAX_ENERGY){
 			energy = MAX_ENERGY;

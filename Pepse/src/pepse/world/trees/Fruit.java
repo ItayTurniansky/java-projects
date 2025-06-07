@@ -3,7 +3,6 @@ package pepse.world.trees;
 import danogl.GameObject;
 import danogl.collisions.Collision;
 import danogl.gui.rendering.OvalRenderable;
-import danogl.gui.rendering.RectangleRenderable;
 import danogl.util.Vector2;
 import pepse.PepseGameManager;
 import pepse.world.Avatar;
@@ -44,7 +43,7 @@ public class Fruit extends GameObject {
 		super.onCollisionEnter(other, collision);
 		if (other.getTag().equals("avatar")) {
 			avatar.addEnergy(FRUIT_ENERGY);
-			gameManager.removeAndComeBack(this);
+			gameManager.removeFruitAndComeBack(this);
 		}
 	}
 }

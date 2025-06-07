@@ -16,7 +16,7 @@ import java.util.Random;
 public class Tree {
 	private static final int LEAF_GRID_SIZE = 10;
 	private static final float LEAF_FILL_PROBABILITY = 0.8f;
-	private static final float FRUIT_FILL_PROBABILITY = 0.5f;
+	private static final float FRUIT_FILL_PROBABILITY = 0.7f;
 	private static final float MAX_LEAF_ANGLE = 15f;
 	private static final float LEAF_MOVE_CYCLE = 1.2f;
 	private static final float LEAF_MOVE_MAX = 10f;
