@@ -2,11 +2,14 @@ package pepse.world;
 
 import danogl.GameObject;
 import danogl.collisions.Collision;
+import danogl.collisions.Layer;
+import danogl.components.ScheduledTask;
 import danogl.gui.ImageReader;
 import danogl.gui.UserInputListener;
 import danogl.gui.rendering.AnimationRenderable;
 import danogl.gui.rendering.Renderable;
 import danogl.util.Vector2;
+import pepse.world.trees.Fruit;
 
 import java.awt.event.KeyEvent;
 import java.awt.image.renderable.RenderableImage;
@@ -22,7 +25,7 @@ public class Avatar extends GameObject {
 	private static final float JUMP_ENERGY = 10;
 	private static final double RENDER_TIME = 0.1;
 	private static final float MAX_ENERGY = 100;
-	private static final float FRUIT_ENERGY = 10;
+	private static final float LIFE_REGEN_DELAY = 1;
 
 	private UserInputListener inputListener;
 	private float energy;
@@ -54,6 +57,7 @@ public class Avatar extends GameObject {
 		super(topLeftCorner, AVATAR_SIZE, imageReader.readImage("assets/idle_0.png", false));
 		physics().preventIntersectionsFromDirection(Vector2.ZERO);
 		transform().setAccelerationY(GRAVITY);
+		this.setTag("avatar");
 		this.inputListener = inputListener;
 		this.energy = MAX_ENERGY;
 		this.idleRenderable = new AnimationRenderable(new Renderable[] {
@@ -107,7 +111,14 @@ public class Avatar extends GameObject {
 		}
 		if (energy < 100 && !inputListener.isKeyPressed(KeyEvent.VK_SPACE) &&
 		!inputListener.isKeyPressed(KeyEvent.VK_LEFT) && !inputListener.isKeyPressed(KeyEvent.VK_RIGHT)) {
-			energy += 1;
+			new ScheduledTask(
+					this,
+					LIFE_REGEN_DELAY,
+					false,
+					() -> {
+						energy += 1;
+					}
+			);
 			this.renderer().setRenderable(idleRenderable);
 			notifyJumpListeners();
 		}
@@ -139,9 +150,7 @@ public class Avatar extends GameObject {
 		if(other.getTag().equals("ground")){
 			this.transform().setVelocityY(0);
 		}
-		if(other.getTag().equals("fruit")){
-			this.addEnergy(FRUIT_ENERGY);
-		}
+
 
 	}
 }

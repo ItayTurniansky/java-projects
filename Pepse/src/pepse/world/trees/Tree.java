@@ -4,7 +4,9 @@ import danogl.GameObject;
 import danogl.components.ScheduledTask;
 import danogl.components.Transition;
 import danogl.util.Vector2;
+import pepse.PepseGameManager;
 import pepse.util.ColorSupplier;
+import pepse.world.Avatar;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -28,7 +30,7 @@ public class Tree {
 	private List<Leaf> leaves;
 	private List<Fruit> fruits;
 
-	public Tree(Vector2 basePosition) {
+	public Tree(Vector2 basePosition, Avatar avatar, PepseGameManager gameManager) {
 		float trunkTopY = basePosition.y() - Trunk.TRUNK_HEIGHT;
 		this.trunk = new Trunk(new Vector2(basePosition.x(), trunkTopY));
 		this.leaves = new ArrayList<>();
@@ -83,7 +85,7 @@ public class Tree {
 					float fruitX = centerX + dx * Leaf.SIZE - Leaf.SIZE / 2f;
 					float fruitY = centerY + dy * Leaf.SIZE;
 					Vector2 fruitPos = new Vector2(fruitX, fruitY);
-					Fruit fruit = new Fruit(fruitPos);
+					Fruit fruit = new Fruit(fruitPos, avatar, gameManager);
 					fruits.add(fruit);
 
 				}

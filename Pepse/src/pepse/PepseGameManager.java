@@ -3,6 +3,8 @@ package pepse;
 import danogl.GameManager;
 import danogl.GameObject;
 import danogl.collisions.Layer;
+import danogl.components.ScheduledTask;
+import danogl.components.Transition;
 import danogl.gui.ImageReader;
 import danogl.gui.SoundReader;
 import danogl.gui.UserInputListener;
@@ -13,6 +15,8 @@ import pepse.world.daynight.Night;
 import pepse.world.daynight.Sun;
 import pepse.world.daynight.SunHalo;
 import pepse.world.trees.Flora;
+import pepse.world.trees.Fruit;
+import pepse.world.trees.Leaf;
 
 import java.util.List;
 import java.util.Random;
@@ -23,6 +27,7 @@ public class PepseGameManager extends GameManager {
 	private static final float ENERGY_COUNTER_SIZE = 50;
 	private final Random seed = new Random();
 	private WindowController windowController;
+	private Avatar avatar;
 
 	/**
 	 * The method will be called once when a GameGUIComponent is created,
@@ -70,7 +75,7 @@ public class PepseGameManager extends GameManager {
 
 		Vector2 avatarInitialLocation = new Vector2(windowController.getWindowDimensions().x()/2,
 				terrain.groundHeightAt(windowController.getWindowDimensions().x()/2)- Avatar.AVATAR_SIZE.y());
-		Avatar avatar = new Avatar(avatarInitialLocation, inputListener, imageReader);
+		this.avatar = new Avatar(avatarInitialLocation, inputListener, imageReader);
 		gameObjects().addGameObject(avatar, Layer.DEFAULT);
 
 
@@ -83,7 +88,7 @@ public class PepseGameManager extends GameManager {
 		counterObject.addComponent((deltaTime -> energyCounter.update((int)avatar.getEnergy())));
 		gameObjects().addGameObject(counterObject, Layer.UI);
 
-		Flora flora = new Flora(terrain);
+		Flora flora = new Flora(terrain, avatar, this);
 		for (GameObject gameObject : flora.createInRange(0, (int) windowController.getWindowDimensions().x())) {
 			if (gameObject.getTag().equals("leaf")){
 				gameObjects().addGameObject(gameObject, Layer.DEFAULT);
@@ -96,6 +101,20 @@ public class PepseGameManager extends GameManager {
 			}
 
 		}
+	}
+	public void removeAndComeBack(Fruit fruit) {
+		Vector2 fruitPos = fruit.getTopLeftCorner();
+		this.gameObjects().removeGameObject(fruit);
+
+		new ScheduledTask(
+				avatar,
+				NIGHT_CYCLE_LENGTH,
+				false,
+				() -> {
+					Fruit newFruit = new Fruit(fruitPos, avatar, this);
+					this.gameObjects().addGameObject(newFruit, Layer.DEFAULT);
+				}
+		);
 	}
 
 

@@ -1,7 +1,10 @@
 package pepse.world.trees;
 
+import danogl.GameManager;
 import danogl.GameObject;
 import danogl.util.Vector2;
+import pepse.PepseGameManager;
+import pepse.world.Avatar;
 import pepse.world.Terrain;
 
 import java.util.ArrayList;
@@ -14,9 +17,13 @@ public class Flora {
 
 	private Random rand = new Random();
 	private Terrain terrain;
+	private Avatar avatar;
+	private PepseGameManager gameManager;
 
-	public Flora(Terrain terrain) {
+	public Flora(Terrain terrain, Avatar avatar, PepseGameManager gameManager) {
 		this.terrain = terrain;
+		this.avatar = avatar;
+		this.gameManager = gameManager;
 
 	}
 
@@ -24,7 +31,7 @@ public class Flora {
 		List<GameObject> gameObjects = new ArrayList<>();
 		for (int i = minX; i <= maxX; i += TREE_SPACING) {
 			if (rand.nextFloat()<TREE_PROBABILITY){
-				Tree tree = new Tree(new Vector2(i, terrain.groundHeightAt(i)));
+				Tree tree = new Tree(new Vector2(i, terrain.groundHeightAt(i)), avatar, gameManager);
 				gameObjects.addAll(tree.getGameObjects());
 			}
 		}
