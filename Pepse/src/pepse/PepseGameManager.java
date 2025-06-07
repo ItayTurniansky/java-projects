@@ -23,10 +23,19 @@ import java.util.List;
 import java.util.Random;
 
 public class PepseGameManager extends GameManager {
-	private static final int FRAME_RATE = 120;
+	private static final int FRAME_RATE = 30;
 	private static final float NIGHT_CYCLE_LENGTH = 30;
 	private static final float ENERGY_COUNTER_SIZE = 50;
-	private final Random seed = new Random();
+	private static final int SEED = 444;
+
+//	private static final int BUFFER_WIDTH = 1000;
+//	private int leftBound;
+//	private int rightBound;
+//	private Terrain terrain;
+//	private Flora flora;
+
+
+	private Random rand;
 	private WindowController windowController;
 	private Vector2 windowDimensions;
 	private Avatar avatar;
@@ -53,6 +62,7 @@ public class PepseGameManager extends GameManager {
 	 */
 	@Override
 	public void initializeGame(ImageReader imageReader, SoundReader soundReader, UserInputListener inputListener, WindowController windowController) {
+		this.rand = new Random(SEED);
 		super.initializeGame(imageReader, soundReader, inputListener, windowController);
 		this.windowController = windowController;
 		this.windowDimensions = windowController.getWindowDimensions();
@@ -69,7 +79,7 @@ public class PepseGameManager extends GameManager {
 		gameObjects().addGameObject(sunHalo, Layer.BACKGROUND);
 		sunHalo.addComponent((deltaTime -> sunHalo.setCenter(sun.getCenter())));
 
-		Terrain terrain = new Terrain(windowDimensions, seed.nextInt());
+		Terrain terrain = new Terrain(windowDimensions, SEED);
 		List<Block> block_list = terrain.createInRange(0, (int) windowDimensions.x());
 		for (Block b : block_list) {
 			gameObjects().addGameObject(b, Layer.STATIC_OBJECTS);
@@ -99,7 +109,7 @@ public class PepseGameManager extends GameManager {
 		counterObject.addComponent((deltaTime -> energyCounter.update((int)avatar.getEnergy())));
 		gameObjects().addGameObject(counterObject, Layer.UI);
 
-		Flora flora = new Flora(terrain, avatar, this);
+		Flora flora = new Flora(terrain, avatar, this, rand, SEED);
 		for (GameObject gameObject : flora.createInRange(0, (int) windowDimensions.x())) {
 			if (gameObject.getTag().equals("leaf")){
 				gameObjects().addGameObject(gameObject, Layer.DEFAULT);
@@ -128,7 +138,7 @@ public class PepseGameManager extends GameManager {
 				NIGHT_CYCLE_LENGTH,
 				false,
 				() -> {
-					Fruit newFruit = new Fruit(fruitPos, avatar, this);
+					Fruit newFruit = new Fruit(fruitPos, avatar, this, rand);
 					this.gameObjects().addGameObject(newFruit, Layer.DEFAULT);
 				}
 		);
@@ -149,6 +159,13 @@ public class PepseGameManager extends GameManager {
 	@Override
 	public void update(float deltaTime) {
 		super.update(deltaTime);
+		updateCloud();
+		removeDrops();
+
+
+	}
+
+	private void updateCloud() {
 		for (GameObject gameObject : currentCloud.getBlocks()) {
 			if (gameObject.getCenter().x() < windowDimensions.x()) {
 				return;
@@ -157,9 +174,11 @@ public class PepseGameManager extends GameManager {
 		currentCloud = new Cloud();
 		currentCloud.create(windowDimensions, avatar, this);
 		for (GameObject gameObject : currentCloud.getBlocks()) {
-			gameObjects().addGameObject(gameObject, Layer.DEFAULT);
+			gameObjects().addGameObject(gameObject, Layer.BACKGROUND);
 		}
+	}
 
+	private void removeDrops() {
 		List<GameObject> toRemove = new ArrayList<>();
 		for (GameObject drop : drops) {
 			if (drop.getCenter().y() < windowDimensions.y()) {
@@ -171,11 +190,11 @@ public class PepseGameManager extends GameManager {
 	}
 
 	public void updateDrops() {
-			List<Block> newDrops = currentCloud.getDrops();
-			this.drops.addAll(newDrops);
-			for (GameObject drop : newDrops){
-				gameObjects().addGameObject(drop, Layer.BACKGROUND);
-			}
+		List<Block> newDrops = currentCloud.getDrops();
+		this.drops.addAll(newDrops);
+		for (GameObject drop : newDrops){
+			gameObjects().addGameObject(drop, Layer.BACKGROUND);
+		}
 	}
 
 	public static void main(String[] args) {

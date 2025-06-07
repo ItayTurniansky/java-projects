@@ -16,12 +16,13 @@ public class Fruit extends GameObject {
 	private static final Color FRUIT_COLOR_2 = new Color(250, 10, 10);
 	private static final float FRUIT_ENERGY = 10;
 
-	private Random rand = new Random();
+	private Random rand;
 	private PepseGameManager gameManager;
 	private Avatar avatar;
 
-	public Fruit(Vector2 topLeftCorner, Avatar avatar, PepseGameManager gameManager) {
+	public Fruit(Vector2 topLeftCorner, Avatar avatar, PepseGameManager gameManager, Random rand) {
 		super(topLeftCorner, Vector2.ONES.mult(SIZE), new OvalRenderable(FRUIT_COLOR_1));
+		this.rand = rand;
 		this.avatar = avatar;
 		this.gameManager = gameManager;
 		if (rand.nextBoolean()) {

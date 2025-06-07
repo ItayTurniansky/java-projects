@@ -15,15 +15,18 @@ public class Flora {
 	private static final float TREE_PROBABILITY = 0.2f;
 	private static final int TREE_SPACING = 3 * Leaf.SIZE;
 
-	private Random rand = new Random();
+	private Random rand ;
 	private Terrain terrain;
 	private Avatar avatar;
 	private PepseGameManager gameManager;
+	private int seed;
 
-	public Flora(Terrain terrain, Avatar avatar, PepseGameManager gameManager) {
+	public Flora(Terrain terrain, Avatar avatar, PepseGameManager gameManager, Random rand, int seed) {
 		this.terrain = terrain;
 		this.avatar = avatar;
 		this.gameManager = gameManager;
+		this.rand = rand;
+		this.seed = seed;
 
 	}
 
@@ -31,7 +34,7 @@ public class Flora {
 		List<GameObject> gameObjects = new ArrayList<>();
 		for (int i = minX; i <= maxX; i += TREE_SPACING) {
 			if (rand.nextFloat()<TREE_PROBABILITY){
-				Tree tree = new Tree(new Vector2(i, terrain.groundHeightAt(i)), avatar, gameManager);
+				Tree tree = new Tree(new Vector2(i, terrain.groundHeightAt(i)), avatar, gameManager, seed);
 				gameObjects.addAll(tree.getGameObjects());
 			}
 		}

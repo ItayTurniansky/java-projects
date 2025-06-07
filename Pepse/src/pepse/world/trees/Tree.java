@@ -11,6 +11,7 @@ import pepse.world.Avatar;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Random;
 
 public class Tree {
@@ -25,12 +26,13 @@ public class Tree {
 	private static final float LEAF_FACTOR_1 = 0.8f;
 	private static final float LEAF_FACTOR_2 = 0.4f;
 
-	private Random rand = new Random();
+	private Random rand;
 	private Trunk trunk;
 	private List<Leaf> leaves;
 	private List<Fruit> fruits;
 
-	public Tree(Vector2 basePosition, Avatar avatar, PepseGameManager gameManager) {
+	public Tree(Vector2 basePosition, Avatar avatar, PepseGameManager gameManager, int seed) {
+		this.rand =new Random(Objects.hash(basePosition.x(), seed));
 		float trunkTopY = basePosition.y() - Trunk.TRUNK_HEIGHT;
 		this.trunk = new Trunk(new Vector2(basePosition.x(), trunkTopY));
 		this.leaves = new ArrayList<>();
@@ -85,7 +87,7 @@ public class Tree {
 					float fruitX = centerX + dx * Leaf.SIZE - Leaf.SIZE / 2f;
 					float fruitY = centerY + dy * Leaf.SIZE;
 					Vector2 fruitPos = new Vector2(fruitX, fruitY);
-					Fruit fruit = new Fruit(fruitPos, avatar, gameManager);
+					Fruit fruit = new Fruit(fruitPos, avatar, gameManager,rand);
 					fruits.add(fruit);
 
 				}

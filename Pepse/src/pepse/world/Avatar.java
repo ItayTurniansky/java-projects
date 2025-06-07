@@ -114,7 +114,7 @@ public class Avatar extends GameObject {
 
 		}
 		if (energy < 100 && !inputListener.isKeyPressed(KeyEvent.VK_SPACE) &&
-		!inputListener.isKeyPressed(KeyEvent.VK_LEFT) && !inputListener.isKeyPressed(KeyEvent.VK_RIGHT)) {
+				!inputListener.isKeyPressed(KeyEvent.VK_LEFT) && !inputListener.isKeyPressed(KeyEvent.VK_RIGHT)) {
 			if(rand.nextBoolean()){
 				new ScheduledTask(
 						this,
