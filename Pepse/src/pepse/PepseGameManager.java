@@ -18,23 +18,19 @@ import pepse.world.daynight.SunHalo;
 import pepse.world.trees.Flora;
 import pepse.world.trees.Fruit;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 public class PepseGameManager extends GameManager {
 	private static final int FRAME_RATE = 30;
 	private static final float NIGHT_CYCLE_LENGTH = 30;
 	private static final float ENERGY_COUNTER_SIZE = 50;
 	private static final int SEED = 444;
+	private static final int CHUNK_WIDTH = 500;
+	private static final int LOAD_RADIUS = 2;
+	private final List<Chunk> chunks = new ArrayList<>();
 
-//	private static final int BUFFER_WIDTH = 1000;
-//	private int leftBound;
-//	private int rightBound;
-//	private Terrain terrain;
-//	private Flora flora;
-
-
+	private Terrain terrain;
+	private Flora flora;
 	private Random rand;
 	private WindowController windowController;
 	private Vector2 windowDimensions;
@@ -42,24 +38,20 @@ public class PepseGameManager extends GameManager {
 	private Cloud currentCloud;
 	private List<GameObject> drops;
 
-	/**
-	 * The method will be called once when a GameGUIComponent is created,
-	 * and again after every invocation of windowController.resetGame().
-	 *
-	 * @param imageReader      Contains a single method: readImage, which reads an image from disk.
-	 *                         See its documentation for help.
-	 * @param soundReader      Contains a single method: readSound, which reads a wav file from
-	 *                         disk. See its documentation for help.
-	 * @param inputListener    Contains a single method: isKeyPressed, which returns whether
-	 *                         a given key is currently pressed by the user or not. See its
-	 *                         documentation.
-	 * @param windowController Contains an array of helpful, self explanatory methods
-	 *                         concerning the window.
-	 * @see ImageReader
-	 * @see SoundReader
-	 * @see UserInputListener
-	 * @see WindowController
-	 */
+	private static class Chunk {
+		int index;
+		List<GameObject> objects;
+
+		Chunk(int index, List<GameObject> objects) {
+			this.index = index;
+			this.objects = objects;
+		}
+
+		boolean isFarFrom(int avatarChunkIndex) {
+			return Math.abs(index - avatarChunkIndex) > LOAD_RADIUS;
+		}
+	}
+
 	@Override
 	public void initializeGame(ImageReader imageReader, SoundReader soundReader, UserInputListener inputListener, WindowController windowController) {
 		this.rand = new Random(SEED);
@@ -78,52 +70,39 @@ public class PepseGameManager extends GameManager {
 		GameObject sunHalo = SunHalo.create(sun);
 		gameObjects().addGameObject(sunHalo, Layer.BACKGROUND);
 		sunHalo.addComponent((deltaTime -> sunHalo.setCenter(sun.getCenter())));
-
-		Terrain terrain = new Terrain(windowDimensions, SEED);
-		List<Block> block_list = terrain.createInRange(0, (int) windowDimensions.x());
-		for (Block b : block_list) {
-			gameObjects().addGameObject(b, Layer.STATIC_OBJECTS);
-		}
-
-
 		GameObject night = Night.create(windowDimensions, NIGHT_CYCLE_LENGTH);
 		gameObjects().addGameObject(night, Layer.UI);
 
-		Vector2 avatarInitialLocation = new Vector2(windowDimensions.x()/2,
-				terrain.groundHeightAt(windowDimensions.x()/2)- Avatar.AVATAR_SIZE.y());
+		this.terrain = new Terrain(windowDimensions, SEED);
+
+		Vector2 avatarInitialLocation = new Vector2(windowDimensions.x() / 2,
+				terrain.groundHeightAt(windowDimensions.x() / 2) - Avatar.AVATAR_SIZE.y());
 		this.avatar = new Avatar(avatarInitialLocation, inputListener, imageReader);
 
 		setCamera(new Camera(avatar,
-				windowDimensions.mult(0.5f) .subtract(avatarInitialLocation),
-				windowDimensions,windowDimensions));
+				windowDimensions.mult(0.5f).subtract(avatarInitialLocation),
+				windowDimensions, windowDimensions));
 		gameObjects().addGameObject(avatar, Layer.DEFAULT);
 
+		this.flora = new Flora(terrain, avatar, this, rand, SEED);
 
-		EnergyCounter energyCounter = new EnergyCounter(String.valueOf((int)avatar.getEnergy()));
+		final int avatarChunk = (int) (avatar.getCenter().x() / CHUNK_WIDTH);
+		for (int i = avatarChunk - LOAD_RADIUS; i <= avatarChunk + LOAD_RADIUS; i++) {
+			loadChunk(i);
+		}
+
+		EnergyCounter energyCounter = new EnergyCounter(String.valueOf((int) avatar.getEnergy()));
 		GameObject counterObject = new GameObject(
 				Vector2.ZERO,
 				new Vector2(ENERGY_COUNTER_SIZE, ENERGY_COUNTER_SIZE),
 				energyCounter
 		);
 		counterObject.setCoordinateSpace(CoordinateSpace.CAMERA_COORDINATES);
-		counterObject.addComponent((deltaTime -> energyCounter.update((int)avatar.getEnergy())));
+		counterObject.addComponent((deltaTime -> energyCounter.update((int) avatar.getEnergy())));
 		gameObjects().addGameObject(counterObject, Layer.UI);
 
-		Flora flora = new Flora(terrain, avatar, this, rand, SEED);
-		for (GameObject gameObject : flora.createInRange(0, (int) windowDimensions.x())) {
-			if (gameObject.getTag().equals("leaf")){
-				gameObjects().addGameObject(gameObject, Layer.DEFAULT);
-			}
-			if (gameObject.getTag().equals("trunk")){
-				gameObjects().addGameObject(gameObject, Layer.STATIC_OBJECTS);
-			}
-			if (gameObject.getTag().equals("fruit")){
-				gameObjects().addGameObject(gameObject, Layer.DEFAULT);
-			}
-
-		}
 		currentCloud = new Cloud();
-		currentCloud.create(windowDimensions,avatar,this);
+		currentCloud.create(windowDimensions, avatar, this);
 		for (GameObject gameObject : currentCloud.getBlocks()) {
 			gameObjects().addGameObject(gameObject, Layer.DEFAULT);
 		}
@@ -144,25 +123,29 @@ public class PepseGameManager extends GameManager {
 		);
 	}
 
-	/**
-	 * Called once per frame. Any logic is put here. Rendering, on the other hand,
-	 * should only be done within 'render'.
-	 * Note that the time that passes between subsequent calls to this method is not constant.
-	 *
-	 * @param deltaTime The time, in seconds, that passed since the last invocation
-	 *                  of this method (i.e., since the last frame). This is useful
-	 *                  for either accumulating the total time that passed since some
-	 *                  event, or for physics integration (i.e., multiply this by
-	 *                  the acceleration to get an estimate of the added velocity or
-	 *                  by the velocity to get an estimate of the difference in position).
-	 */
 	@Override
 	public void update(float deltaTime) {
 		super.update(deltaTime);
 		updateCloud();
 		removeDrops();
+		final int avatarChunk = (int) (avatar.getCenter().x() / CHUNK_WIDTH);
 
+		for (int i = avatarChunk - LOAD_RADIUS; i <= avatarChunk + LOAD_RADIUS; i++) {
+			final int chunkIndex = i;
+			if (chunks.stream().noneMatch(c -> c.index == chunkIndex)) {
+				loadChunk(chunkIndex);
+			}
+		}
 
+		chunks.removeIf(chunk -> {
+			if (chunk.isFarFrom(avatarChunk)) {
+				for (GameObject obj : chunk.objects) {
+					gameObjects().removeGameObject(obj);
+				}
+				return true;
+			}
+			return false;
+		});
 	}
 
 	private void updateCloud() {
@@ -189,10 +172,32 @@ public class PepseGameManager extends GameManager {
 		drops.removeAll(toRemove);
 	}
 
+	private void loadChunk(int chunkIndex) {
+		int minX = chunkIndex * CHUNK_WIDTH;
+		int maxX = minX + CHUNK_WIDTH;
+		List<GameObject> chunkObjects = new ArrayList<>();
+		Random chunkRandom = new Random(SEED + chunkIndex);
+
+		for (GameObject obj : terrain.createInRange(minX, maxX)) {
+			gameObjects().addGameObject(obj, Layer.STATIC_OBJECTS);
+			chunkObjects.add(obj);
+		}
+
+		for (GameObject obj : flora.createInRange(minX, maxX, chunkRandom)) {
+			switch (obj.getTag()) {
+				case "leaf", "fruit" -> gameObjects().addGameObject(obj, Layer.DEFAULT);
+				case "trunk" -> gameObjects().addGameObject(obj, Layer.STATIC_OBJECTS);
+			}
+			chunkObjects.add(obj);
+		}
+
+		chunks.add(new Chunk(chunkIndex, chunkObjects));
+	}
+
 	public void updateDrops() {
 		List<Block> newDrops = currentCloud.getDrops();
 		this.drops.addAll(newDrops);
-		for (GameObject drop : newDrops){
+		for (GameObject drop : newDrops) {
 			gameObjects().addGameObject(drop, Layer.BACKGROUND);
 		}
 	}
@@ -200,6 +205,4 @@ public class PepseGameManager extends GameManager {
 	public static void main(String[] args) {
 		new PepseGameManager().run();
 	}
-
-
 }

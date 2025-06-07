@@ -26,7 +26,7 @@ public class Avatar extends GameObject {
 	private static final float JUMP_ENERGY = 10;
 	private static final double RENDER_TIME = 0.1;
 	private static final float MAX_ENERGY = 100;
-	private static final float LIFE_REGEN_DELAY = 1;
+	private static final float LIFE_REGEN_DELAY = 0.2f;
 
 	private UserInputListener inputListener;
 	private float energy;
