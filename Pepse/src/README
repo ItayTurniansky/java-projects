@@ -1,0 +1,21 @@
+itayturni
+123456789
+
+In the `trees` package, I created several classes that together generate and manage trees in the game:
+
+- `Trunk`: A vertical rectangle that represents the bottom part of the tree.
+- `Leaf`: Small green blocks that appear around the top of the trunk.
+- `Fruit`: Similar to leaves, but they give energy when the avatar touches them.
+- `Tree`: Combines a trunk, leaves, and fruits into one full tree.
+- `Flora`: Manages multiple trees in a given area and decides where to place them.
+
+Each `Tree` uses one `Trunk` and adds multiple `Leaf` and `Fruit` objects based on random chance. The `Flora`
+class uses `Tree` to plant several trees across the world, spaced randomly. The `Fruit` class interacts with the
+`Avatar` to increase energy and disappear, and later reappear.
+
+I didn’t use any design patterns inside the `trees` package. But in the general game logic, I used the
+Observer pattern between the `Avatar` and the `Cloud`, where the cloud listens to jump events using the
+`JumpListener` interface.
+
+I also created an inner static class called `Chunk` inside the `PepseGameManager` class to represent groups
+of game objects that belong to a specific region of the world.

@@ -4,21 +4,30 @@ import danogl.gui.rendering.TextRenderable;
 
 import java.awt.*;
 
+/**
+ * A simple energy display component that renders the avatar's current energy as text.
+ *
+ * <p>Used to visually indicate the player's energy level as an integer string.</p>
+ *
+ * @author itayturni
+ */
 public class EnergyCounter extends TextRenderable {
 
-
 	/**
-	 * @param str first string to display in EnergyCounter
+	 * Constructs a new EnergyCounter with an initial display value.
+	 *
+	 * @param str Initial string to display (e.g., energy value)
 	 */
 	public EnergyCounter(String str) {
 		super(str);
 	}
 
 	/**
-	 * @param i the current energy amount to be displayed by EnergyCounter
+	 * Updates the text to reflect the current energy level.
+	 *
+	 * @param i The current energy amount to display
 	 */
 	public void update(int i) {
-		this.setString(String.valueOf(i));
+		setString(String.valueOf(i));
 	}
-
 }

@@ -12,6 +12,14 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Random;
 
+/**
+ * Represents a full tree structure in the game world, composed of a trunk, leaves, and optional fruits.
+ *
+ * <p>Leaves are placed in a grid pattern with random animation and appearance. Fruits are placed with
+ * a separate probability and are interactable via the Avatar.</p>
+ *
+ * @author itayturni
+ */
 public class Tree {
 	private static final int LEAF_GRID_SIZE = 10;
 	private static final float LEAF_FILL_PROBABILITY = 0.8f;
@@ -24,10 +32,19 @@ public class Tree {
 	private static final float LEAF_FACTOR_1 = 0.8f;
 	private static final float LEAF_FACTOR_2 = 0.4f;
 
-	private Trunk trunk;
-	private List<Leaf> leaves;
-	private List<Fruit> fruits;
+	private final Trunk trunk;
+	private final List<Leaf> leaves;
+	private final List<Fruit> fruits;
 
+	/**
+	 * Constructs a Tree object with a trunk, leaves, and fruits generated in a reproducible,
+	 * seed-based layout.
+	 *
+	 * @param basePosition The bottom-center position of the tree trunk
+	 * @param avatar       The player avatar for fruit interaction
+	 * @param gameManager  The game manager for context and scheduling
+	 * @param seed         The seed used for deterministic randomness
+	 */
 	public Tree(Vector2 basePosition, Avatar avatar, PepseGameManager gameManager, int seed) {
 		float trunkTopY = basePosition.y() - Trunk.TRUNK_HEIGHT;
 		this.trunk = new Trunk(new Vector2(basePosition.x(), trunkTopY));
@@ -53,10 +70,12 @@ public class Tree {
 						Leaf leaf = new Leaf(objectPos);
 						leaves.add(leaf);
 
-						// Animate leaf
-						float waitTime = MIN_LEAF_DELAY + cellRand.nextFloat() * (MAX_LEAF_DELAY - MIN_LEAF_DELAY);
-						float leafAngle = MAX_LEAF_ANGLE * (LEAF_FACTOR_1 + cellRand.nextFloat() * LEAF_FACTOR_2);
-						float leafCycle = LEAF_MOVE_CYCLE * (LEAF_FACTOR_1 + cellRand.nextFloat() * LEAF_FACTOR_2);
+						float waitTime = MIN_LEAF_DELAY +
+								cellRand.nextFloat() * (MAX_LEAF_DELAY - MIN_LEAF_DELAY);
+						float leafAngle = MAX_LEAF_ANGLE *
+								(LEAF_FACTOR_1 + cellRand.nextFloat() * LEAF_FACTOR_2);
+						float leafCycle = LEAF_MOVE_CYCLE *
+								(LEAF_FACTOR_1 + cellRand.nextFloat() * LEAF_FACTOR_2);
 
 						new ScheduledTask(
 								leaf,
@@ -75,7 +94,9 @@ public class Tree {
 									);
 									new Transition<>(
 											leaf,
-											stretch -> leaf.setDimensions(new Vector2(Leaf.SIZE + stretch, Leaf.SIZE)),
+											stretch -> leaf.setDimensions(
+													new Vector2(Leaf.SIZE + stretch, Leaf.SIZE)
+											),
 											0f,
 											LEAF_MOVE_MAX,
 											Transition.LINEAR_INTERPOLATOR_FLOAT,
@@ -94,6 +115,11 @@ public class Tree {
 		}
 	}
 
+	/**
+	 * Returns all GameObjects (trunk, leaves, fruits) that make up the tree.
+	 *
+	 * @return A list of GameObjects representing the full tree
+	 */
 	public List<GameObject> getGameObjects() {
 		List<GameObject> objs = new ArrayList<>();
 		objs.add(trunk);
